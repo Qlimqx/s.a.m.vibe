@@ -204,14 +204,36 @@ select option{background:#1a1a1a}
 .bg-upload-area p{color:var(--text2);font-size:13px;margin-top:8px}
 
 input[type=file]{display:none}
+
 </style>
 </head>
 <body>
+
 
 <div id="site-bg"></div>
 <input type="file" id="bg-file-input" accept="image/*">
 <input type="file" id="generic-img-input" accept="image/*">
 <input type="file" id="album-img-input" accept="image/*" multiple>
+
+<!-- MODALE LOGIN ADMIN -->
+<div id="admin-login-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);align-items:center;justify-content:center">
+  <div style="width:100%;max-width:360px;padding:0 24px">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;letter-spacing:4px;text-align:center;margin-bottom:4px">ADMIN <span style="color:#E82A2A">SAM</span></div>
+    <div style="font-size:10px;color:#444;letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:32px">Acces restreint</div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:10px;color:#555;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:5px">Identifiant</label>
+      <input type="text" id="adm-user-input" placeholder="Votre identifiant" autocomplete="username" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#f0f0f0;font-family:'Barlow',sans-serif;font-size:14px;padding:11px 13px;outline:none" onkeydown="if(event.key==='Enter')document.getElementById('adm-pass-input').focus()">
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:10px;color:#555;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:5px">Mot de passe</label>
+      <input type="password" id="adm-pass-input" placeholder="••••••••" autocomplete="current-password" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#f0f0f0;font-family:'Barlow',sans-serif;font-size:14px;padding:11px 13px;outline:none" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <button onclick="doAdminLogin()" style="width:100%;background:#E82A2A;color:#fff;border:none;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:13px;border-radius:6px;cursor:pointer;margin-top:4px">Connexion</button>
+    <div id="adm-login-error" style="font-size:12px;color:#E82A2A;text-align:center;margin-top:10px;min-height:16px"></div>
+    <button onclick="closeAdminLogin()" style="width:100%;background:transparent;border:1px solid rgba(255,255,255,.1);color:#555;font-family:'Barlow',sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:10px;border-radius:6px;cursor:pointer;margin-top:10px">Annuler</button>
+  </div>
+</div>
+
 
 <!-- TICKER -->
 <div class="ticker-wrap">
@@ -237,7 +259,7 @@ input[type=file]{display:none}
     <button onclick="showPage('album',this)">Album</button>
     <button onclick="showPage('archives',this)">Archives</button>
   </div>
-  <button class="btn-admin" onclick="openAdmin()">Admin</button>
+  <button class="btn-admin" onclick="tryOpenAdmin()">Admin</button>
 </nav>
 
 <!-- PAGE ACCUEIL -->
@@ -398,6 +420,51 @@ input[type=file]{display:none}
 </footer>
 
 <script>
+// ============================================================
+//  COMPTES ADMIN — modifiez ici pour ajouter des comptes
+//  Format : "identifiant": "motdepasse",
+// ============================================================
+const COMPTES = {
+  "admin": "Sam123456"
+};
+
+let adminConnecte = sessionStorage.getItem('sam_admin') || null;
+
+function tryOpenAdmin(){
+  if(adminConnecte && COMPTES[adminConnecte]!==undefined){
+    openAdmin();
+  } else {
+    document.getElementById('adm-user-input').value='';
+    document.getElementById('adm-pass-input').value='';
+    document.getElementById('adm-login-error').textContent='';
+    const m=document.getElementById('admin-login-modal');
+    m.style.display='flex';
+    setTimeout(()=>document.getElementById('adm-user-input').focus(),100);
+  }
+}
+
+function doAdminLogin(){
+  const u=document.getElementById('adm-user-input').value.trim();
+  const p=document.getElementById('adm-pass-input').value;
+  const err=document.getElementById('adm-login-error');
+  if(!u||!p){err.textContent='Remplissez tous les champs.';return;}
+  if(COMPTES[u]!==undefined && COMPTES[u]===p){
+    adminConnecte=u;
+    sessionStorage.setItem('sam_admin',u);
+    document.getElementById('admin-login-modal').style.display='none';
+    err.textContent='';
+    openAdmin();
+  } else {
+    err.textContent='Identifiant ou mot de passe incorrect.';
+    document.getElementById('adm-pass-input').value='';
+    document.getElementById('adm-pass-input').focus();
+  }
+}
+
+function closeAdminLogin(){
+  document.getElementById('admin-login-modal').style.display='none';
+}
+
 const FLAGS=['🇮🇹','🇫🇷','🇺🇸','🇩🇪','🇪🇸','🇧🇷','🇯🇵','🇷🇺','🇬🇧','🇵🇹','🇦🇷','🇲🇽','🇨🇦','🇦🇺'];
 const COLORS=['#E82A2A','#2A8AE8','#1D9E75','#D4A017','#7F77DD','#888780','#D4537E','#5DCAA5'];
 let nid=300;function uid(){return++nid}
