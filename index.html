@@ -6,7 +6,7 @@
 <title>San Andreas Motorsport</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--red:#E82A2A;--red-dark:#A81E1E;--bg:#000000;--bg2:#111;--bg3:#1a1a1a;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);--text:#f0f0f0;--text2:#888;--text3:#444;--gold:#D4A017;--silver:#8A8A8A;--bronze:#A0522D}
+:root{--red:#E82A2A;--red-dark:#A81E1E;--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);--text:#f0f0f0;--text2:#888;--text3:#444;--gold:#D4A017;--silver:#8A8A8A;--bronze:#A0522D}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 #site-bg{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;transition:opacity .5s}
@@ -340,181 +340,7 @@ input[type=file]{display:none}
 
 <!-- PAGE INFORMATIONS -->
 <div id="page-infos" class="page">
-  <div class="section">
-    <div class="section-title">Informations & Reglement</div>
-
-    <!-- STRUCTURE FINANCIERE -->
-    <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
-      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-        <span style="font-size:18px">💰</span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Structure Financiere (par ecurie)</span>
-      </div>
-      <div style="padding:16px 20px">
-        <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.7">L'equilibre est simple : sur chaque ticket d'entree, une partie part dans les prix, l'autre dans les coffres de la S.A.M.</p>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px">
-          <div style="background:rgba(232,42,42,.07);border:1px solid rgba(232,42,42,.2);border-radius:6px;padding:14px;text-align:center">
-            <div style="font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Frais d'inscription</div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:#f0f0f0">200 000 $</div>
-          </div>
-          <div style="background:rgba(138,138,138,.07);border:1px solid rgba(138,138,138,.2);border-radius:6px;padding:14px;text-align:center">
-            <div style="font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Profit S.A.M. (25%)</div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:var(--silver)">50 000 $</div>
-          </div>
-          <div style="background:rgba(212,160,23,.07);border:1px solid rgba(212,160,23,.2);border-radius:6px;padding:14px;text-align:center">
-            <div style="font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Injection Cash Prize</div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:var(--gold)">150 000 $</div>
-          </div>
-        </div>
-        <div style="background:rgba(29,158,117,.08);border:1px solid rgba(29,158,117,.2);border-radius:6px;padding:12px 16px;font-size:12px;color:#5DCAA5;line-height:1.6">
-          <strong style="color:#1D9E75">Note :</strong> Avec 10 ecuries, la S.A.M. genere <strong style="color:#1D9E75">500 000 $</strong> de benefice net des le debut de saison, tout en ayant <strong style="color:#1D9E75">1 500 000 $</strong> pour payer les recompenses de fin de championnat.
-        </div>
-      </div>
-    </div>
-
-    <!-- RECOMPENSES PAR COURSE -->
-    <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
-      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-        <span style="font-size:18px">🏆</span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Recompenses par Course (Cash Prize)</span>
-      </div>
-      <div style="padding:16px 20px">
-        <p style="font-size:13px;color:var(--text2);margin-bottom:16px">50 000 $ total par course, distribues uniquement au Top 3. Les places 4 a 20 ne gagnent que des points.</p>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-          <div style="background:linear-gradient(to bottom,rgba(212,160,23,.12),rgba(212,160,23,.04));border:1px solid rgba(212,160,23,.35);border-radius:8px;padding:16px;text-align:center">
-            <div style="font-size:28px;margin-bottom:6px">🥇</div>
-            <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:4px">1er — Or</div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--gold)">30 000 $</div>
-          </div>
-          <div style="background:linear-gradient(to bottom,rgba(138,138,138,.1),rgba(138,138,138,.03));border:1px solid rgba(138,138,138,.3);border-radius:8px;padding:16px;text-align:center">
-            <div style="font-size:28px;margin-bottom:6px">🥈</div>
-            <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--silver);margin-bottom:4px">2e — Argent</div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--silver)">15 000 $</div>
-          </div>
-          <div style="background:linear-gradient(to bottom,rgba(160,82,45,.1),rgba(160,82,45,.03));border:1px solid rgba(160,82,45,.3);border-radius:8px;padding:16px;text-align:center">
-            <div style="font-size:28px;margin-bottom:6px">🥉</div>
-            <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--bronze);margin-bottom:4px">3e — Bronze</div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--bronze)">5 000 $</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RECOMPENSES FIN DE CHAMP -->
-    <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
-      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-        <span style="font-size:18px">🎖️</span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Recompenses de Fin de Championnat</span>
-      </div>
-      <div style="padding:16px 20px">
-        <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Exemple base sur 10 ecuries — Total redistribuable : 1 500 000 $ (moins le cout des 8 courses)</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div>
-            <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">Championnat Ecuries</div>
-            <div style="display:flex;flex-direction:column;gap:8px">
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(212,160,23,.07);border-radius:5px;border-left:3px solid var(--gold)">
-                <span style="font-size:13px">🥇 1er</span>
-                <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--gold)">500 000 $</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(138,138,138,.06);border-radius:5px;border-left:3px solid var(--silver)">
-                <span style="font-size:13px">🥈 2e</span>
-                <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--silver)">250 000 $</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(160,82,45,.06);border-radius:5px;border-left:3px solid var(--bronze)">
-                <span style="font-size:13px">🥉 3e</span>
-                <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--bronze)">100 000 $</span>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">Championnat Pilotes</div>
-            <div style="display:flex;flex-direction:column;gap:8px">
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(212,160,23,.07);border-radius:5px;border-left:3px solid var(--gold)">
-                <span style="font-size:13px">🥇 1er</span>
-                <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--gold)">200 000 $ + Vehicule</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(138,138,138,.06);border-radius:5px;border-left:3px solid var(--silver)">
-                <span style="font-size:13px">🥈 2e</span>
-                <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--silver)">100 000 $</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(160,82,45,.06);border-radius:5px;border-left:3px solid var(--bronze)">
-                <span style="font-size:13px">🥉 3e</span>
-                <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--bronze)">50 000 $</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- GESTION PERSONNEL -->
-    <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
-      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-        <span style="font-size:18px">👥</span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Gestion du Personnel (Staff S.A.M.)</span>
-      </div>
-      <div style="padding:16px 20px">
-        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7">Grace au fond de roulement (les 50k par ecurie), la S.A.M. paie son propre personnel sans toucher aux prix des pilotes :</p>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid var(--border)">
-            <div style="width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0"></div>
-            <div><span style="font-size:13px;font-weight:500">Commissaires de course</span> <span style="font-size:12px;color:var(--text2)">— Salaire fixe par GP</span></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid var(--border)">
-            <div style="width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0"></div>
-            <div><span style="font-size:13px;font-weight:500">Securite & Logistique</span> <span style="font-size:12px;color:var(--text2)">— Payes par le fond de roulement</span></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid var(--border)">
-            <div style="width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0"></div>
-            <div><span style="font-size:13px;font-weight:500">Marketing / Communication</span> <span style="font-size:12px;color:var(--text2)">— Frais couverts par l'entreprise</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- POINTS ET REGLEMENT -->
-    <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
-      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-        <span style="font-size:18px">📊</span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Points & Reglement</span>
-      </div>
-      <div style="padding:16px 20px">
-        <div style="margin-bottom:14px">
-          <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">Bareme des points pilotes</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            ${[['1er','25'],['2e','18'],['3e','15'],['4e','10'],['5e','8'],['6e','6'],['7e','4'],['8e','2'],['9e','1'],['10e','1']].map(([pos,pts])=>`<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:5px;padding:8px 10px;text-align:center;min-width:48px"><div style="font-size:10px;color:var(--text2)">${pos}</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--red)">${pts}</div></div>`).join('')}
-          </div>
-        </div>
-        <div style="background:rgba(232,42,42,.07);border:1px solid rgba(232,42,42,.2);border-radius:6px;padding:12px 16px;font-size:12px;color:var(--text2);line-height:1.6">
-          <span style="color:var(--red);font-weight:500">Droit de Regard :</span> L'entreprise S.A.M. se reserve le droit d'exclure une ecurie sans remboursement des 200 000 $ en cas de faute grave (triche, corruption, violence hors piste).
-        </div>
-      </div>
-    </div>
-
-    <!-- OBLIGATIONS ECURIES -->
-    <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
-      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-        <span style="font-size:18px">🛠️</span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Obligations des Ecuries</span>
-      </div>
-      <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;gap:14px;align-items:flex-start;padding:12px 16px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid var(--border)">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--red);flex-shrink:0;line-height:1">01</div>
-          <div>
-            <div style="font-size:13px;font-weight:500;margin-bottom:3px">Le Depot</div>
-            <div style="font-size:12px;color:var(--text2);line-height:1.6">Les 200 000 $ doivent etre deposes sur le compte de la S.A.M. <strong style="color:#f0f0f0">72h avant le premier GP</strong>.</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:14px;align-items:flex-start;padding:12px 16px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid var(--border)">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--red);flex-shrink:0;line-height:1">02</div>
-          <div>
-            <div style="font-size:13px;font-weight:500;margin-bottom:3px">Maintenance</div>
-            <div style="font-size:12px;color:var(--text2);line-height:1.6">Chaque ecurie est responsable des frais de reparation de ses vehicules. La S.A.M. ne fournit que <strong style="color:#f0f0f0">la piste et la securite</strong>.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
+  <div class="section" id="infos-render"></div>
 </div>
 
 <!-- LIGHTBOX -->
@@ -539,6 +365,7 @@ input[type=file]{display:none}
       <button class="admin-tab" onclick="showAdmTab('adm-sponsors',this)">Sponsors</button>
       <button class="admin-tab" onclick="showAdmTab('adm-album',this)">Album</button>
       <button class="admin-tab" onclick="showAdmTab('adm-contacts',this)">Contacts</button>
+      <button class="admin-tab" onclick="showAdmTab('adm-infos',this)">Reglement</button>
     </div>
 
     <div id="adm-bg" class="admin-page active">
@@ -580,9 +407,15 @@ input[type=file]{display:none}
       <div class="btn-row" style="margin-bottom:14px"><button class="btn-add" onclick="document.getElementById('album-img-input').click()">+ Ajouter des photos</button></div>
       <div id="adm-album-list"></div>
     </div>
+    <div id="adm-contacts" class="admin-page">
       <div class="adm-section-title">Informations de contact (affichees en bas du site)</div>
       <div id="adm-contacts-list"></div>
       <div class="btn-row"><button class="btn-add" onclick="addContact()">+ Ajouter un contact</button></div>
+    </div>
+
+    <div id="adm-infos" class="admin-page">
+      <div class="adm-section-title">Reglement & Informations financieres</div>
+      <div id="adm-infos-list"></div>
     </div>
   </div>
 </div>
@@ -654,6 +487,28 @@ let openChamps={};
 let data={
   bg:'',
   navLogo:'',
+  infos:{
+    fraisInscription:'200 000 $',
+    profitSAM:'50 000 $',
+    injectionPrize:'150 000 $',
+    noteFinanciere:'Si tu as 10 ecuries, la S.A.M. genere 500 000 $ de benefice net des le debut de saison, tout en ayant 1 500 000 $ pour payer les recompenses de fin de championnat.',
+    prizeTop1:'30 000 $',
+    prizeTop2:'15 000 $',
+    prizeTop3:'5 000 $',
+    totalParCourse:'50 000 $',
+    champEcurie1:'500 000 $',
+    champEcurie2:'250 000 $',
+    champEcurie3:'100 000 $',
+    champPilote1:'200 000 $ + Vehicule de collection',
+    champPilote2:'100 000 $',
+    champPilote3:'50 000 $',
+    bareme:'25,18,15,10,8,6,4,2,1,1',
+    droitRegard:'L\'entreprise S.A.M. se reserve le droit d\'exclure une ecurie sans remboursement des 200 000 $ en cas de faute grave (triche, corruption, violence hors piste).',
+    obligation1titre:'Le Depot',
+    obligation1texte:'Les 200 000 $ doivent etre deposes sur le compte de la S.A.M. 72h avant le premier GP.',
+    obligation2titre:'Maintenance',
+    obligation2texte:'Chaque ecurie est responsable des frais de reparation de ses vehicules. La S.A.M. ne fournit que la piste et la securite.'
+  },
   contacts:[
     {id:1,label:'Discord',valeur:'discord.gg/SAM'},
     {id:2,label:'Email',valeur:'contact@sam-rp.com'},
@@ -703,8 +558,16 @@ function getEcCouleur(nom){const e=data.ecuries.find(x=>x.nom===nom);return e?e.
 function showPage(id,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-links button').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  if(el)el.classList.add('active');
+  const pg=document.getElementById('page-'+id);
+  if(!pg)return;
+  pg.classList.add('active');
+  if(el){
+    el.classList.add('active');
+  } else {
+    const btn=document.querySelector(`.nav-links button[onclick*="'${id}'"]`);
+    if(btn)btn.classList.add('active');
+  }
+  sessionStorage.setItem('sam_page',id);
   renderAll();
 }
 function switchTab(show,hide,el){
@@ -782,7 +645,124 @@ function openLightbox(src,cap){
 function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
 
 // RENDER ALL
-function renderAll(){renderTicker();renderAccueil();renderClassement();renderPilotesPage();renderEcuriesPage();renderAgendaPage();renderSponsorsPage();renderAlbumPage();renderArchivesPage();renderFooter();}
+function renderAll(){renderTicker();renderAccueil();renderClassement();renderPilotesPage();renderEcuriesPage();renderAgendaPage();renderSponsorsPage();renderAlbumPage();renderArchivesPage();renderFooter();renderInfosPage();}
+
+function renderInfosPage(){
+  const f=data.infos;
+  const pts=f.bareme.split(',');
+  const positions=['1er','2e','3e','4e','5e','6e','7e','8e','9e','10e'];
+  const ptCards=pts.map((p,i)=>`<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:5px;padding:8px 10px;text-align:center;min-width:48px"><div style="font-size:10px;color:var(--text2)">${positions[i]||i+1+'e'}</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#E82A2A">${p.trim()}</div></div>`).join('');
+  document.getElementById('infos-render').innerHTML=`
+    <div class="section-title">Informations & Reglement</div>
+    <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px"><span style="font-size:18px">💰</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Structure Financiere (par ecurie)</span></div>
+      <div style="padding:16px 20px">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.7">L'equilibre est simple : sur chaque ticket d'entree, une partie part dans les prix, l'autre dans les coffres de la S.A.M.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px">
+          <div style="background:rgba(232,42,42,.07);border:1px solid rgba(232,42,42,.2);border-radius:6px;padding:14px;text-align:center"><div style="font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Frais d'inscription</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:#f0f0f0">${f.fraisInscription}</div></div>
+          <div style="background:rgba(138,138,138,.07);border:1px solid rgba(138,138,138,.2);border-radius:6px;padding:14px;text-align:center"><div style="font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Profit S.A.M. (25%)</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:#8A8A8A">${f.profitSAM}</div></div>
+          <div style="background:rgba(212,160,23,.07);border:1px solid rgba(212,160,23,.2);border-radius:6px;padding:14px;text-align:center"><div style="font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Injection Cash Prize</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:#D4A017">${f.injectionPrize}</div></div>
+        </div>
+        <div style="background:rgba(29,158,117,.08);border:1px solid rgba(29,158,117,.2);border-radius:6px;padding:12px 16px;font-size:12px;color:#5DCAA5;line-height:1.6">${f.noteFinanciere}</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px"><span style="font-size:18px">🏆</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Recompenses par Course</span></div>
+      <div style="padding:16px 20px">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px">${f.totalParCourse} total par course, distribues uniquement au Top 3. Les places 4 a 20 ne gagnent que des points.</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+          <div style="background:rgba(212,160,23,.08);border:1px solid rgba(212,160,23,.3);border-radius:8px;padding:16px;text-align:center"><div style="font-size:28px;margin-bottom:6px">🥇</div><div style="font-size:10px;color:#D4A017;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">1er — Or</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:#D4A017">${f.prizeTop1}</div></div>
+          <div style="background:rgba(138,138,138,.08);border:1px solid rgba(138,138,138,.3);border-radius:8px;padding:16px;text-align:center"><div style="font-size:28px;margin-bottom:6px">🥈</div><div style="font-size:10px;color:#8A8A8A;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">2e — Argent</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:#8A8A8A">${f.prizeTop2}</div></div>
+          <div style="background:rgba(160,82,45,.08);border:1px solid rgba(160,82,45,.3);border-radius:8px;padding:16px;text-align:center"><div style="font-size:28px;margin-bottom:6px">🥉</div><div style="font-size:10px;color:#A0522D;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">3e — Bronze</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:#A0522D">${f.prizeTop3}</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px"><span style="font-size:18px">🎖️</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Recompenses de Fin de Championnat</span></div>
+      <div style="padding:16px 20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div><div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">Championnat Ecuries</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(212,160,23,.07);border-radius:5px;border-left:3px solid #D4A017"><span>🥇 1er</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#D4A017">${f.champEcurie1}</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(138,138,138,.06);border-radius:5px;border-left:3px solid #8A8A8A"><span>🥈 2e</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#8A8A8A">${f.champEcurie2}</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(160,82,45,.06);border-radius:5px;border-left:3px solid #A0522D"><span>🥉 3e</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#A0522D">${f.champEcurie3}</span></div>
+            </div>
+          </div>
+          <div><div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">Championnat Pilotes</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(212,160,23,.07);border-radius:5px;border-left:3px solid #D4A017"><span>🥇 1er</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#D4A017">${f.champPilote1}</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(138,138,138,.06);border-radius:5px;border-left:3px solid #8A8A8A"><span>🥈 2e</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#8A8A8A">${f.champPilote2}</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(160,82,45,.06);border-radius:5px;border-left:3px solid #A0522D"><span>🥉 3e</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#A0522D">${f.champPilote3}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px"><span style="font-size:18px">📊</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Points & Reglement</span></div>
+      <div style="padding:16px 20px">
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">Bareme des points pilotes</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">${ptCards}</div>
+        <div style="background:rgba(232,42,42,.07);border:1px solid rgba(232,42,42,.2);border-radius:6px;padding:12px 16px;font-size:12px;color:var(--text2);line-height:1.6"><span style="color:#E82A2A;font-weight:500">Droit de Regard : </span>${f.droitRegard}</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px"><span style="font-size:18px">🛠️</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Obligations des Ecuries</span></div>
+      <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:12px 16px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid var(--border)"><div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:#E82A2A;flex-shrink:0;line-height:1">01</div><div><div style="font-size:13px;font-weight:500;margin-bottom:3px">${f.obligation1titre}</div><div style="font-size:12px;color:var(--text2);line-height:1.6">${f.obligation1texte}</div></div></div>
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:12px 16px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid var(--border)"><div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:#E82A2A;flex-shrink:0;line-height:1">02</div><div><div style="font-size:13px;font-weight:500;margin-bottom:3px">${f.obligation2titre}</div><div style="font-size:12px;color:var(--text2);line-height:1.6">${f.obligation2texte}</div></div></div>
+      </div>
+    </div>`;
+}
+
+function renderAdmInfos(){
+  const f=data.infos;
+  document.getElementById('adm-infos-list').innerHTML=`
+    <div class="acard"><div class="adm-section-title" style="margin-top:0">Structure financiere</div>
+      <div class="form-row">
+        <div><label>Frais inscription</label><input type="text" value="${f.fraisInscription}" onchange="data.infos.fraisInscription=this.value;renderInfosPage()"></div>
+        <div><label>Profit SAM (25%)</label><input type="text" value="${f.profitSAM}" onchange="data.infos.profitSAM=this.value;renderInfosPage()"></div>
+        <div><label>Injection Cash Prize</label><input type="text" value="${f.injectionPrize}" onchange="data.infos.injectionPrize=this.value;renderInfosPage()"></div>
+      </div>
+      <div><label>Note financiere</label><textarea onchange="data.infos.noteFinanciere=this.value;renderInfosPage()">${f.noteFinanciere}</textarea></div>
+    </div>
+    <div class="acard"><div class="adm-section-title" style="margin-top:0">Recompenses par course</div>
+      <div class="form-row">
+        <div><label>Total par course</label><input type="text" value="${f.totalParCourse}" onchange="data.infos.totalParCourse=this.value;renderInfosPage()"></div>
+        <div><label>1er (Or)</label><input type="text" value="${f.prizeTop1}" onchange="data.infos.prizeTop1=this.value;renderInfosPage()"></div>
+        <div><label>2e (Argent)</label><input type="text" value="${f.prizeTop2}" onchange="data.infos.prizeTop2=this.value;renderInfosPage()"></div>
+        <div><label>3e (Bronze)</label><input type="text" value="${f.prizeTop3}" onchange="data.infos.prizeTop3=this.value;renderInfosPage()"></div>
+      </div>
+    </div>
+    <div class="acard"><div class="adm-section-title" style="margin-top:0">Recompenses fin de championnat — Ecuries</div>
+      <div class="form-row">
+        <div><label>1er Ecurie</label><input type="text" value="${f.champEcurie1}" onchange="data.infos.champEcurie1=this.value;renderInfosPage()"></div>
+        <div><label>2e Ecurie</label><input type="text" value="${f.champEcurie2}" onchange="data.infos.champEcurie2=this.value;renderInfosPage()"></div>
+        <div><label>3e Ecurie</label><input type="text" value="${f.champEcurie3}" onchange="data.infos.champEcurie3=this.value;renderInfosPage()"></div>
+      </div>
+    </div>
+    <div class="acard"><div class="adm-section-title" style="margin-top:0">Recompenses fin de championnat — Pilotes</div>
+      <div class="form-row">
+        <div><label>1er Pilote</label><input type="text" value="${f.champPilote1}" onchange="data.infos.champPilote1=this.value;renderInfosPage()"></div>
+        <div><label>2e Pilote</label><input type="text" value="${f.champPilote2}" onchange="data.infos.champPilote2=this.value;renderInfosPage()"></div>
+        <div><label>3e Pilote</label><input type="text" value="${f.champPilote3}" onchange="data.infos.champPilote3=this.value;renderInfosPage()"></div>
+      </div>
+    </div>
+    <div class="acard"><div class="adm-section-title" style="margin-top:0">Bareme des points (separes par virgules)</div>
+      <div><label>Points 1er au 10e (ex: 25,18,15,10,8,6,4,2,1,1)</label><input type="text" value="${f.bareme}" onchange="data.infos.bareme=this.value;renderInfosPage()"></div>
+    </div>
+    <div class="acard"><div class="adm-section-title" style="margin-top:0">Reglement</div>
+      <div style="margin-bottom:10px"><label>Droit de regard</label><textarea onchange="data.infos.droitRegard=this.value;renderInfosPage()">${f.droitRegard}</textarea></div>
+      <div class="form-row">
+        <div><label>Obligation 1 — Titre</label><input type="text" value="${f.obligation1titre}" onchange="data.infos.obligation1titre=this.value;renderInfosPage()"></div>
+        <div style="flex:2"><label>Obligation 1 — Texte</label><input type="text" value="${f.obligation1texte}" onchange="data.infos.obligation1texte=this.value;renderInfosPage()"></div>
+      </div>
+      <div class="form-row">
+        <div><label>Obligation 2 — Titre</label><input type="text" value="${f.obligation2titre}" onchange="data.infos.obligation2titre=this.value;renderInfosPage()"></div>
+        <div style="flex:2"><label>Obligation 2 — Texte</label><input type="text" value="${f.obligation2texte}" onchange="data.infos.obligation2texte=this.value;renderInfosPage()"></div>
+      </div>
+    </div>`;
+}
 
 function renderFooter(){
   let h='';
@@ -1176,7 +1156,21 @@ function updContact(id,k,v){const c=data.contacts.find(x=>x.id===id);if(c)c[k]=v
 function delContact(id){data.contacts=data.contacts.filter(x=>x.id!==id);renderAdmContacts();renderFooter();}
 function addContact(){data.contacts.push({id:uid(),label:'Contact',valeur:''});renderAdmContacts();renderFooter();}
 
+function renderAdmin(){renderAdmChamps();renderAdmPilotes();renderAdmEcuries();renderAdmSponsors();renderAdmAlbum();renderAdmContacts();renderAdmInfos();}
+
+// Charge les donnees puis restaure la page
 renderAll();
+
+// Restaure la page sans relancer renderAll
+(function(){
+  const saved=sessionStorage.getItem('sam_page')||'accueil';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-links button').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('page-'+saved);
+  if(pg)pg.classList.add('active');
+  const btn=document.querySelector(`.nav-links button[onclick*="'${saved}'"]`);
+  if(btn)btn.classList.add('active');
+})();
 </script>
 </body>
 </html>
