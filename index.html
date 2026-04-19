@@ -376,6 +376,11 @@ input[type=file]{display:none}
       </div>
       <img id="bg-preview-img" style="width:100%;max-height:120px;object-fit:cover;border-radius:4px;display:none;margin-bottom:10px" alt="">
       <div id="bg-actions" style="display:none"><button class="btn-del" onclick="clearBg()">Supprimer le fond</button></div>
+      <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
+        <div class="adm-section-title">Zone de danger</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Remet toutes les donnees par defaut (pilotes, ecuries, reglement, etc.)</p>
+        <button class="btn-del" onclick="resetData()" style="border-color:rgba(232,42,42,.4);color:#E82A2A">Reinitialiser toutes les donnees</button>
+      </div>
     </div>
 
     <div id="adm-champs" class="admin-page">
@@ -484,7 +489,7 @@ let nid=300;function uid(){return++nid}
 let imgTarget=null;
 let openChamps={};
 
-let data={
+const DEFAULT_DATA={
   bg:'',
   navLogo:'',
   infos:{
@@ -551,6 +556,45 @@ let data={
   ],
   album:[]
 };
+
+// Sauvegarde dans localStorage
+function saveData(){
+  try{
+    const toSave=Object.assign({},data,{nid:nid});
+    localStorage.setItem('sam_data',JSON.stringify(toSave));
+  }catch(e){console.warn('Sauvegarde impossible',e);}
+}
+
+// Charge depuis localStorage (ou DEFAULT_DATA si rien de sauvegarde)
+function loadData(){
+  try{
+    const saved=localStorage.getItem('sam_data');
+    if(saved){
+      const parsed=JSON.parse(saved);
+      // Merge deep pour ajouter les nouvelles cles sans ecraser les anciennes
+      data=Object.assign({},DEFAULT_DATA,parsed);
+      data.infos=Object.assign({},DEFAULT_DATA.infos,parsed.infos||{});
+      if(parsed.nid)nid=parsed.nid;
+    } else {
+      data=JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+  }catch(e){
+    data=JSON.parse(JSON.stringify(DEFAULT_DATA));
+  }
+}
+
+// Bouton reset dans l'admin (au cas ou)
+function resetData(){
+  if(confirm('Remettre toutes les donnees par defaut ? Cette action est irreversible.')){
+    localStorage.removeItem('sam_data');
+    data=JSON.parse(JSON.stringify(DEFAULT_DATA));
+    nid=300;
+    renderAll();renderAdmin();
+  }
+}
+
+let data=JSON.parse(JSON.stringify(DEFAULT_DATA));
+loadData();
 
 function getEcCouleur(nom){const e=data.ecuries.find(x=>x.nom===nom);return e?e.couleur:'#888'}
 
@@ -645,13 +689,19 @@ function openLightbox(src,cap){
 function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
 
 // RENDER ALL
-function renderAll(){renderTicker();renderAccueil();renderClassement();renderPilotesPage();renderEcuriesPage();renderAgendaPage();renderSponsorsPage();renderAlbumPage();renderArchivesPage();renderFooter();renderInfosPage();}
+function renderAll(){saveData();renderTicker();renderAccueil();renderClassement();renderPilotesPage();renderEcuriesPage();renderAgendaPage();renderSponsorsPage();renderAlbumPage();renderArchivesPage();renderFooter();renderInfosPage();}
 
 function renderInfosPage(){
   const f=data.infos;
   const pts=f.bareme.split(',');
   const positions=['1er','2e','3e','4e','5e','6e','7e','8e','9e','10e'];
-  const ptCards=pts.map((p,i)=>`<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:5px;padding:8px 10px;text-align:center;min-width:48px"><div style="font-size:10px;color:var(--text2)">${positions[i]||i+1+'e'}</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#E82A2A">${p.trim()}</div></div>`).join('');
+  let ptCards='';
+  pts.forEach(function(p,i){
+    ptCards+='<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:5px;padding:8px 10px;text-align:center;min-width:48px">'
+      +'<div style="font-size:10px;color:#888">'+(positions[i]||i+1+'e')+'</div>'
+      +'<div style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:700;color:#E82A2A">'+p.trim()+'</div>'
+      +'</div>';
+  });
   document.getElementById('infos-render').innerHTML=`
     <div class="section-title">Informations & Reglement</div>
     <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
@@ -720,46 +770,46 @@ function renderAdmInfos(){
   document.getElementById('adm-infos-list').innerHTML=`
     <div class="acard"><div class="adm-section-title" style="margin-top:0">Structure financiere</div>
       <div class="form-row">
-        <div><label>Frais inscription</label><input type="text" value="${f.fraisInscription}" onchange="data.infos.fraisInscription=this.value;renderInfosPage()"></div>
-        <div><label>Profit SAM (25%)</label><input type="text" value="${f.profitSAM}" onchange="data.infos.profitSAM=this.value;renderInfosPage()"></div>
-        <div><label>Injection Cash Prize</label><input type="text" value="${f.injectionPrize}" onchange="data.infos.injectionPrize=this.value;renderInfosPage()"></div>
+        <div><label>Frais inscription</label><input type="text" value="${f.fraisInscription}" onchange="updInfos('fraisInscription',this.value)"></div>
+        <div><label>Profit SAM (25%)</label><input type="text" value="${f.profitSAM}" onchange="updInfos('profitSAM',this.value)"></div>
+        <div><label>Injection Cash Prize</label><input type="text" value="${f.injectionPrize}" onchange="updInfos('injectionPrize',this.value)"></div>
       </div>
-      <div><label>Note financiere</label><textarea onchange="data.infos.noteFinanciere=this.value;renderInfosPage()">${f.noteFinanciere}</textarea></div>
+      <div><label>Note financiere</label><textarea onchange="updInfos('noteFinanciere',this.value)">${f.noteFinanciere}</textarea></div>
     </div>
     <div class="acard"><div class="adm-section-title" style="margin-top:0">Recompenses par course</div>
       <div class="form-row">
-        <div><label>Total par course</label><input type="text" value="${f.totalParCourse}" onchange="data.infos.totalParCourse=this.value;renderInfosPage()"></div>
-        <div><label>1er (Or)</label><input type="text" value="${f.prizeTop1}" onchange="data.infos.prizeTop1=this.value;renderInfosPage()"></div>
-        <div><label>2e (Argent)</label><input type="text" value="${f.prizeTop2}" onchange="data.infos.prizeTop2=this.value;renderInfosPage()"></div>
-        <div><label>3e (Bronze)</label><input type="text" value="${f.prizeTop3}" onchange="data.infos.prizeTop3=this.value;renderInfosPage()"></div>
+        <div><label>Total par course</label><input type="text" value="${f.totalParCourse}" onchange="updInfos('totalParCourse',this.value)"></div>
+        <div><label>1er (Or)</label><input type="text" value="${f.prizeTop1}" onchange="updInfos('prizeTop1',this.value)"></div>
+        <div><label>2e (Argent)</label><input type="text" value="${f.prizeTop2}" onchange="updInfos('prizeTop2',this.value)"></div>
+        <div><label>3e (Bronze)</label><input type="text" value="${f.prizeTop3}" onchange="updInfos('prizeTop3',this.value)"></div>
       </div>
     </div>
     <div class="acard"><div class="adm-section-title" style="margin-top:0">Recompenses fin de championnat — Ecuries</div>
       <div class="form-row">
-        <div><label>1er Ecurie</label><input type="text" value="${f.champEcurie1}" onchange="data.infos.champEcurie1=this.value;renderInfosPage()"></div>
-        <div><label>2e Ecurie</label><input type="text" value="${f.champEcurie2}" onchange="data.infos.champEcurie2=this.value;renderInfosPage()"></div>
-        <div><label>3e Ecurie</label><input type="text" value="${f.champEcurie3}" onchange="data.infos.champEcurie3=this.value;renderInfosPage()"></div>
+        <div><label>1er Ecurie</label><input type="text" value="${f.champEcurie1}" onchange="updInfos('champEcurie1',this.value)"></div>
+        <div><label>2e Ecurie</label><input type="text" value="${f.champEcurie2}" onchange="updInfos('champEcurie2',this.value)"></div>
+        <div><label>3e Ecurie</label><input type="text" value="${f.champEcurie3}" onchange="updInfos('champEcurie3',this.value)"></div>
       </div>
     </div>
     <div class="acard"><div class="adm-section-title" style="margin-top:0">Recompenses fin de championnat — Pilotes</div>
       <div class="form-row">
-        <div><label>1er Pilote</label><input type="text" value="${f.champPilote1}" onchange="data.infos.champPilote1=this.value;renderInfosPage()"></div>
-        <div><label>2e Pilote</label><input type="text" value="${f.champPilote2}" onchange="data.infos.champPilote2=this.value;renderInfosPage()"></div>
-        <div><label>3e Pilote</label><input type="text" value="${f.champPilote3}" onchange="data.infos.champPilote3=this.value;renderInfosPage()"></div>
+        <div><label>1er Pilote</label><input type="text" value="${f.champPilote1}" onchange="updInfos('champPilote1',this.value)"></div>
+        <div><label>2e Pilote</label><input type="text" value="${f.champPilote2}" onchange="updInfos('champPilote2',this.value)"></div>
+        <div><label>3e Pilote</label><input type="text" value="${f.champPilote3}" onchange="updInfos('champPilote3',this.value)"></div>
       </div>
     </div>
     <div class="acard"><div class="adm-section-title" style="margin-top:0">Bareme des points (separes par virgules)</div>
-      <div><label>Points 1er au 10e (ex: 25,18,15,10,8,6,4,2,1,1)</label><input type="text" value="${f.bareme}" onchange="data.infos.bareme=this.value;renderInfosPage()"></div>
+      <div><label>Points 1er au 10e (ex: 25,18,15,10,8,6,4,2,1,1)</label><input type="text" value="${f.bareme}" onchange="updInfos('bareme',this.value)"></div>
     </div>
     <div class="acard"><div class="adm-section-title" style="margin-top:0">Reglement</div>
-      <div style="margin-bottom:10px"><label>Droit de regard</label><textarea onchange="data.infos.droitRegard=this.value;renderInfosPage()">${f.droitRegard}</textarea></div>
+      <div style="margin-bottom:10px"><label>Droit de regard</label><textarea onchange="updInfos('droitRegard',this.value)">${f.droitRegard}</textarea></div>
       <div class="form-row">
-        <div><label>Obligation 1 — Titre</label><input type="text" value="${f.obligation1titre}" onchange="data.infos.obligation1titre=this.value;renderInfosPage()"></div>
-        <div style="flex:2"><label>Obligation 1 — Texte</label><input type="text" value="${f.obligation1texte}" onchange="data.infos.obligation1texte=this.value;renderInfosPage()"></div>
+        <div><label>Obligation 1 — Titre</label><input type="text" value="${f.obligation1titre}" onchange="updInfos('obligation1titre',this.value)"></div>
+        <div style="flex:2"><label>Obligation 1 — Texte</label><input type="text" value="${f.obligation1texte}" onchange="updInfos('obligation1texte',this.value)"></div>
       </div>
       <div class="form-row">
-        <div><label>Obligation 2 — Titre</label><input type="text" value="${f.obligation2titre}" onchange="data.infos.obligation2titre=this.value;renderInfosPage()"></div>
-        <div style="flex:2"><label>Obligation 2 — Texte</label><input type="text" value="${f.obligation2texte}" onchange="data.infos.obligation2texte=this.value;renderInfosPage()"></div>
+        <div><label>Obligation 2 — Titre</label><input type="text" value="${f.obligation2titre}" onchange="updInfos('obligation2titre',this.value)"></div>
+        <div style="flex:2"><label>Obligation 2 — Texte</label><input type="text" value="${f.obligation2texte}" onchange="updInfos('obligation2texte',this.value)"></div>
       </div>
     </div>`;
 }
@@ -1156,6 +1206,7 @@ function updContact(id,k,v){const c=data.contacts.find(x=>x.id===id);if(c)c[k]=v
 function delContact(id){data.contacts=data.contacts.filter(x=>x.id!==id);renderAdmContacts();renderFooter();}
 function addContact(){data.contacts.push({id:uid(),label:'Contact',valeur:''});renderAdmContacts();renderFooter();}
 
+function updInfos(key,val){data.infos[key]=val;saveData();renderInfosPage();}
 function renderAdmin(){renderAdmChamps();renderAdmPilotes();renderAdmEcuries();renderAdmSponsors();renderAdmAlbum();renderAdmContacts();renderAdmInfos();}
 
 // Charge les donnees puis restaure la page
