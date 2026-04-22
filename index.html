@@ -540,9 +540,9 @@ const DEFAULT_DATA={
     {id:6,num:'18',prenom:'Elias',nom:'Ferreira',flag:'🇧🇷',ecurie:'Verde Team',pts:74,photo:''}
   ],
   ecuries:[
-    {id:1,nom:'Scarlatta Racing',couleur:'#E82A2A',logo:'',sponsors:['Maze Bank','Sprunk']},
-    {id:2,nom:'Azul Motorsport',couleur:'#2A8AE8',logo:'',sponsors:['Ubermacht']},
-    {id:3,nom:'Verde Team',couleur:'#1D9E75',logo:'',sponsors:['eCola']},
+    {id:1,nom:'Scarlatta Racing',couleur:'#E82A2A',logo:'',mecano:'',sponsors:['Maze Bank','Sprunk']},
+    {id:2,nom:'Azul Motorsport',couleur:'#2A8AE8',logo:'',mecano:'',sponsors:['Ubermacht']},
+    {id:3,nom:'Verde Team',couleur:'#1D9E75',logo:'',mecano:'',sponsors:['eCola']},
     {id:4,nom:'Golden Speed',couleur:'#D4A017',logo:'',sponsors:[]},
     {id:5,nom:'Nord Racing',couleur:'#7F77DD',logo:'',sponsors:[]}
   ],
@@ -942,6 +942,7 @@ function renderEcuriesPage(){
       <div class="ecurie-body">
         <div class="ecurie-name" style="color:${e.couleur}">${e.nom}</div>
         <div class="ecurie-info">${pil}</div>
+        ${e.mecano?`<div class="ecurie-info" style="margin-top:2px">🔧 <span style="color:var(--text2)">${e.mecano}</span></div>`:''}
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:${e.couleur};margin-top:8px">${ep[e.nom]||0} pts</div>
         ${spons?`<div class="ecurie-sponsor-list">${spons}</div>`:''}
       </div>
@@ -1114,6 +1115,9 @@ function renderAdmEcuries(){
             <div style="flex:2"><label>Nom</label><input type="text" value="${e.nom}" onchange="updE(${e.id},'nom',this.value)"></div>
             <div><label>Couleur</label><input type="color" value="${e.couleur}" style="width:40px;height:34px;padding:2px;background:transparent;border:1px solid #333;border-radius:4px;cursor:pointer" onchange="updE(${e.id},'couleur',this.value)"></div>
           </div>
+          <div class="form-row">
+            <div style="flex:1"><label>Mécanicien</label><input type="text" value="${e.mecano||''}" placeholder="Nom du mécanicien" onchange="updE(${e.id},'mecano',this.value)"></div>
+          </div>
           <div style="font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin:8px 0 6px">Sponsors de l'ecurie</div>
           ${sponsList}
           <button class="btn-sec" style="margin-top:4px" onclick="addEcSponsor(${e.id})">+ Sponsor</button>
@@ -1174,7 +1178,7 @@ function addPilote(){data.pilotes.push({id:uid(),num:'00',prenom:'Nouveau',nom:'
 // CRUD ECURIES
 function updE(id,k,v){const e=data.ecuries.find(x=>x.id===id);if(e)e[k]=v;renderAll();}
 function delE(id){data.ecuries=data.ecuries.filter(x=>x.id!==id);renderAdmEcuries();renderAll();}
-function addEcurie(){data.ecuries.push({id:uid(),nom:'Nouvelle Ecurie',couleur:COLORS[data.ecuries.length%COLORS.length],logo:'',sponsors:[]});renderAdmEcuries();renderAll();}
+function addEcurie(){data.ecuries.push({id:uid(),nom:'Nouvelle Ecurie',couleur:COLORS[data.ecuries.length%COLORS.length],logo:'',mecano:'',sponsors:[]});renderAdmEcuries();renderAll();}
 function addEcSponsor(id){const e=data.ecuries.find(x=>x.id===id);if(e){if(!e.sponsors)e.sponsors=[];e.sponsors.push('Sponsor');renderAdmEcuries();renderEcuriesPage();}}
 function updEcSponsor(id,i,v){const e=data.ecuries.find(x=>x.id===id);if(e&&e.sponsors)e.sponsors[i]=v;renderEcuriesPage();}
 function delEcSponsor(id,i){const e=data.ecuries.find(x=>x.id===id);if(e&&e.sponsors)e.sponsors.splice(i,1);renderAdmEcuries();renderEcuriesPage();}
