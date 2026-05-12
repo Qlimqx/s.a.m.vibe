@@ -891,24 +891,45 @@ function renderFinances(cfg) {
 // FETCHER GOOGLE SHEETS
 // ============================================================
 async function fetchSheet(tabName) {
-  const urls = [
-    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`,
-    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(tabName)}`
-  ];
-  let lastErr;
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, { credentials: 'omit' });
-      if (!res.ok) { lastErr = new Error('HTTP ' + res.status); continue; }
-      const text = await res.text();
-      if (text.includes('<!DOCTYPE') || text.includes('<html') || text.trim() === '') {
-        lastErr = new Error('Sheet non publié ou nom onglet incorrect');
-        continue;
-      }
-      return parseCSV(text);
-    } catch(e) { lastErr = e; }
+  // Utilise le endpoint JSON de Google qui est plus fiable pour le CORS
+  const jsonUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(tabName)}`;
+  const csvUrl  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
+
+  console.log('[SAM] Fetching:', tabName);
+
+  // Essai 1 : JSON (plus fiable CORS)
+  try {
+    const res = await fetch(jsonUrl, { credentials: 'omit' });
+    const text = await res.text();
+    // Format Google : /*O_o*/google.visualization.Query.setResponse({...});
+    const clean = text.replace(/^.*?setResponse\(/, '').replace(/\);\s*$/, '');
+    const json = JSON.parse(clean);
+    if (!json.table) throw new Error('No table in JSON response');
+    const cols = json.table.cols.map(c => c.label || c.id || '');
+    const rows = (json.table.rows || []).map(row => {
+      const obj = {};
+      (row.c || []).forEach((cell, i) => {
+        obj[cols[i]] = cell ? String(cell.v !== null && cell.v !== undefined ? cell.v : '') : '';
+      });
+      return obj;
+    });
+    console.log('[SAM] JSON OK:', tabName, rows.length, 'rows, cols:', cols);
+    return rows;
+  } catch(e) {
+    console.warn('[SAM] JSON failed for', tabName, ':', e.message, '— trying CSV...');
   }
-  throw lastErr;
+
+  // Essai 2 : CSV fallback
+  try {
+    const res = await fetch(csvUrl, { credentials: 'omit' });
+    const text = await res.text();
+    if (text.includes('<!DOCTYPE') || text.includes('<html')) throw new Error('Got HTML instead of CSV');
+    console.log('[SAM] CSV OK:', tabName);
+    return parseCSV(text);
+  } catch(e) {
+    console.error('[SAM] Both methods failed for', tabName, ':', e.message);
+    throw e;
+  }
 }
 
 
