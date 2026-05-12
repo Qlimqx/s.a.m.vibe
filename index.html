@@ -417,11 +417,12 @@
 const SHEET_ID = '1uqmR4bNcEDErMej6xsfrXPh6IfC70CpzH_8QLS7s-TY';
 
 // Noms des onglets dans ta feuille (ne change pas si tu gardes les noms par défaut)
+// Range = commence à la ligne des vrais en-têtes (saute les lignes de titre déco)
 const TABS = {
-  config:    'CONFIG',
-  ecuries:   'ECURIES',
-  resultats: 'RESULTATS',
-  manches:   'MANCHES'
+  config:    { name: 'CONFIG',    range: 'A3:C200'  },
+  ecuries:   { name: 'ECURIES',   range: 'A3:I200'  },
+  resultats: { name: 'RESULTATS', range: 'A4:L200'  },
+  manches:   { name: 'MANCHES',   range: 'A3:E200'  }
 };
 
 // ============================================================
@@ -890,44 +891,51 @@ function renderFinances(cfg) {
 // ============================================================
 // FETCHER GOOGLE SHEETS
 // ============================================================
-async function fetchSheet(tabName) {
-  // Utilise le endpoint JSON de Google qui est plus fiable pour le CORS
-  const jsonUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(tabName)}`;
-  const csvUrl  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
+async function fetchSheet(tab) {
+  const tabName = typeof tab === 'string' ? tab : tab.name;
+  const range   = typeof tab === 'string' ? ''  : tab.range;
+  const jsonUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(tabName)}&range=${range}&headers=1`;
 
-  console.log('[SAM] Fetching:', tabName);
+  console.log('[SAM] Fetching:', tabName, 'range:', range);
 
-  // Essai 1 : JSON (plus fiable CORS)
   try {
     const res = await fetch(jsonUrl, { credentials: 'omit' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const text = await res.text();
-    // Format Google : /*O_o*/google.visualization.Query.setResponse({...});
-    const clean = text.replace(/^.*?setResponse\(/, '').replace(/\);\s*$/, '');
+    if (text.includes('<!DOCTYPE') || text.includes('<html')) throw new Error('Got HTML');
+
+    // Parse le format Google: /*O_o*/google.visualization.Query.setResponse({...});
+    const clean = text.replace(/^[\s\S]*?setResponse\(/, '').replace(/\);\s*$/, '');
     const json = JSON.parse(clean);
-    if (!json.table) throw new Error('No table in JSON response');
-    const cols = json.table.cols.map(c => c.label || c.id || '');
+    if (!json.table) throw new Error('No table');
+
+    // Utilise les labels des colonnes comme clés
+    const cols = json.table.cols.map(c => (c.label || c.id || '').trim());
     const rows = (json.table.rows || []).map(row => {
       const obj = {};
       (row.c || []).forEach((cell, i) => {
-        obj[cols[i]] = cell ? String(cell.v !== null && cell.v !== undefined ? cell.v : '') : '';
+        const key = cols[i] || `col${i}`;
+        // Utilise la valeur numérique si dispo (évite les espaces insécables)
+        if (cell && cell.v !== null && cell.v !== undefined) {
+          obj[key] = typeof cell.v === 'number' ? String(cell.v) : String(cell.v);
+        } else {
+          obj[key] = '';
+        }
       });
       return obj;
     });
-    console.log('[SAM] JSON OK:', tabName, rows.length, 'rows, cols:', cols);
-    return rows;
-  } catch(e) {
-    console.warn('[SAM] JSON failed for', tabName, ':', e.message, '— trying CSV...');
-  }
 
-  // Essai 2 : CSV fallback
-  try {
-    const res = await fetch(csvUrl, { credentials: 'omit' });
-    const text = await res.text();
-    if (text.includes('<!DOCTYPE') || text.includes('<html')) throw new Error('Got HTML instead of CSV');
-    console.log('[SAM] CSV OK:', tabName);
-    return parseCSV(text);
+    // Filtre les lignes vides et séparateurs
+    const filtered = rows.filter(r => {
+      const first = Object.values(r)[0] || '';
+      return first.trim() && !first.startsWith('──') && !first.startsWith('🏎') && !first.startsWith('📊') && !first.startsWith('Remplis');
+    });
+
+    console.log('[SAM] OK:', tabName, filtered.length, 'rows | cols:', cols.join(', '));
+    return filtered;
+
   } catch(e) {
-    console.error('[SAM] Both methods failed for', tabName, ':', e.message);
+    console.error('[SAM] Failed:', tabName, e.message);
     throw e;
   }
 }
