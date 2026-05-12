@@ -3,1470 +3,943 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- ============================================================
-       SAN ANDREAS MOTORS — Site officiel SAM
-       Fédération de course
-       
-       POUR MODIFIER :
-       - Nom de la fédération     → cherche "San Andreas Motors"
-       - Nombre de manches        → cherche "4 manches"
-       - Frais d'inscription      → cherche "$200 000"
-       - Noms des écuries         → section "Les 8 Écuries"
-       - Montants des primes      → section "Finances"
-       - Règlement                → section "Règlement"
-       
-       HÉBERGEMENT GITHUB PAGES :
-       1. Créer un repo GitHub (ex: sam-federation)
-       2. Uploader ce fichier index.html
-       3. Settings → Pages → Branch: main → Save
-       4. Ton site sera sur : https://[ton-pseudo].github.io/sam-federation
-  ============================================================ -->
-
   <title>S.A.M — San Andreas Motors</title>
 
-  <!-- Google Fonts — Barlow Condensed (titres) + Barlow (texte) -->
+  <!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║           SAN ANDREAS MOTORS — Site dynamique               ║
+  ║                                                             ║
+  ║  SEULE CHOSE À MODIFIER : ton SHEET_ID Google Sheets        ║
+  ║  (ligne ~650, cherche : const SHEET_ID = )                  ║
+  ║                                                             ║
+  ║  TOUT LE RESTE se gère dans Google Sheets :                 ║
+  ║  → Onglet CONFIG    : nom, montants, saison                 ║
+  ║  → Onglet ECURIES   : noms, pilotes, statuts               ║
+  ║  → Onglet RESULTATS : positions par manche (auto-calculé)   ║
+  ║  → Onglet MANCHES   : calendrier des courses               ║
+  ║                                                             ║
+  ║  MISE EN LIGNE (GitHub Pages) :                             ║
+  ║  1. Créer un repo GitHub                                    ║
+  ║  2. Upload ce fichier index.html                            ║
+  ║  3. Settings → Pages → Branch: main → Save                  ║
+  ╚══════════════════════════════════════════════════════════════╝
+  -->
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
   <style>
-    /* ============================================================
-       VARIABLES — Modifie ici les couleurs globales du site
-    ============================================================ */
     :root {
-      --gold:        #F0A500;     /* Couleur accent principale */
-      --gold-dark:   #c47f00;     /* Accent foncé (hover) */
-      --gold-light:  #fff0c2;     /* Texte sur fond doré */
-      --bg:          #0c0c0c;     /* Fond de page */
-      --surface:     #131313;     /* Fond cartes principales */
-      --surface-2:   #1a1a1a;     /* Fond cartes secondaires */
-      --border:      rgba(255,255,255,0.07); /* Bordures */
-      --border-gold: rgba(240,165,0,0.3);    /* Bordures dorées */
-      --text:        #f0f0f0;     /* Texte principal */
-      --text-muted:  #888;        /* Texte secondaire */
-      --text-dim:    #555;        /* Texte très discret */
-      --green:       #2ecc71;     /* Couleur succès/gain */
-      --red:         #e74c3c;     /* Couleur erreur/dépense */
+      --gold:       #F0A500;
+      --gold-dim:   rgba(240,165,0,0.15);
+      --gold-border:rgba(240,165,0,0.35);
+      --bg:         #0c0c0c;
+      --surface:    #131313;
+      --surface2:   #1a1a1a;
+      --border:     rgba(255,255,255,0.07);
+      --text:       #f0f0f0;
+      --muted:      #888;
+      --dim:        #444;
+      --green:      #2ecc71;
+      --red:        #e74c3c;
     }
-
-    /* ============================================================
-       RESET & BASE
-    ============================================================ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Barlow', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      font-size: 15px;
-      line-height: 1.7;
-      min-height: 100vh;
-    }
+    body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.7; }
+    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
     a { color: var(--gold); text-decoration: none; }
-    a:hover { color: var(--gold-dark); }
-    strong { font-weight: 600; }
 
-    /* ============================================================
-       SCROLLBAR
-    ============================================================ */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
-
-    /* ============================================================
-       HEADER & NAVIGATION
-    ============================================================ */
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(12,12,12,0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border-gold);
-    }
-    .header-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      height: 64px;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-      text-decoration: none;
-    }
-    .logo-badge {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--gold);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800;
-      font-size: 14px;
-      color: #1a0e00;
-      letter-spacing: 0.5px;
-      flex-shrink: 0;
-    }
-    .logo-text {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.2;
-    }
-    .logo-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700;
-      font-size: 17px;
-      color: var(--text);
-      letter-spacing: 1px;
-    }
-    .logo-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-      letter-spacing: 0.5px;
-    }
-    nav {
-      display: flex;
-      gap: 2px;
-      overflow-x: auto;
-      flex: 1;
-      justify-content: flex-end;
-    }
+    /* ── HEADER ── */
+    header { position: sticky; top: 0; z-index: 100; background: rgba(12,12,12,0.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--gold-border); }
+    .header-inner { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; gap: 1.5rem; height: 62px; }
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
+    .logo-badge { width: 38px; height: 38px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 13px; color: #1a0e00; }
+    .logo-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 1px; color: var(--text); }
+    .logo-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
+    nav { display: flex; gap: 2px; overflow-x: auto; flex: 1; justify-content: flex-end; }
     nav::-webkit-scrollbar { display: none; }
-    nav a {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      padding: 6px 12px;
-      border-radius: 4px;
-      white-space: nowrap;
-      transition: color 0.2s, background 0.2s;
-      text-decoration: none;
-    }
-    nav a:hover { color: var(--gold); background: rgba(240,165,0,0.06); }
+    nav a { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); padding: 5px 10px; border-radius: 4px; white-space: nowrap; transition: color 0.2s, background 0.2s; }
+    nav a:hover { color: var(--gold); background: var(--gold-dim); }
+    .sync-btn { margin-left: auto; background: var(--gold-dim); border: 1px solid var(--gold-border); color: var(--gold); font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; padding: 6px 14px; border-radius: 5px; cursor: pointer; transition: background 0.2s; white-space: nowrap; flex-shrink: 0; }
+    .sync-btn:hover { background: rgba(240,165,0,0.25); }
 
-    /* ============================================================
-       HERO
-    ============================================================ */
-    .hero {
-      position: relative;
-      overflow: hidden;
-      padding: 5rem 1.5rem 4rem;
-      text-align: center;
-      background:
-        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(240,165,0,0.08) 0%, transparent 70%),
-        var(--bg);
-    }
-    /* Ligne décorative en bas du hero */
-    .hero::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 120px;
-      height: 2px;
-      background: var(--gold);
-    }
-    .hero-season {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--gold);
-      border: 1px solid var(--border-gold);
-      padding: 4px 14px;
-      border-radius: 20px;
-      margin-bottom: 1.5rem;
-    }
-    .hero h1 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800;
-      font-size: clamp(3rem, 10vw, 6rem);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      line-height: 1;
-      margin-bottom: 0.5rem;
-      /* Dégradé sur le titre */
-      background: linear-gradient(180deg, #fff 40%, #aaa 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero h1 span {
-      background: linear-gradient(135deg, var(--gold) 0%, #ffcc55 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero-tagline {
-      font-size: 1rem;
-      color: var(--text-muted);
-      margin-bottom: 2.5rem;
-      letter-spacing: 1px;
-    }
-    .hero-stats {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .hero-stat {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem 1.5rem;
-      text-align: center;
-    }
-    .hero-stat-value {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--gold);
-      line-height: 1;
-    }
-    .hero-stat-label {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: 4px;
-    }
+    /* ── HERO ── */
+    .hero { position: relative; overflow: hidden; padding: 4.5rem 1.5rem 3.5rem; text-align: center; background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(240,165,0,0.07) 0%, transparent 70%); }
+    .hero::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100px; height: 2px; background: var(--gold); }
+    .hero-badge { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); border: 1px solid var(--gold-border); padding: 4px 14px; border-radius: 20px; margin-bottom: 1.25rem; }
+    .hero h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: clamp(2.8rem, 9vw, 5.5rem); letter-spacing: 3px; text-transform: uppercase; line-height: 1; margin-bottom: 0.5rem; background: linear-gradient(180deg, #fff 30%, #777 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero h1 span { background: linear-gradient(135deg, var(--gold) 0%, #ffcc55 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-tagline { font-size: 0.95rem; color: var(--muted); margin-bottom: 2.5rem; letter-spacing: 1px; }
+    .hero-stats { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
+    .hero-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1.4rem; text-align: center; min-width: 90px; }
+    .hero-stat-val { font-family: 'Barlow Condensed', sans-serif; font-size: 1.7rem; font-weight: 700; color: var(--gold); line-height: 1; }
+    .hero-stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
 
-    /* ============================================================
-       LAYOUT PRINCIPAL
-    ============================================================ */
-    main {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 3rem 1.5rem 5rem;
-    }
-
-    /* ============================================================
-       SECTIONS
-    ============================================================ */
-    .section {
-      margin-bottom: 5rem;
-    }
-    .section-header {
-      display: flex;
-      align-items: baseline;
-      gap: 1rem;
-      margin-bottom: 1.75rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--border);
-      position: relative;
-    }
-    /* Barre dorée à gauche du titre de section */
-    .section-header::before {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      width: 60px;
-      height: 2px;
-      background: var(--gold);
-    }
-    .section-num {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--gold);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      opacity: 0.7;
-      min-width: 36px;
-    }
-    .section-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text);
-    }
-
-    /* ============================================================
-       GRILLES
-    ============================================================ */
+    /* ── LAYOUT ── */
+    main { max-width: 1100px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+    .section { margin-bottom: 4.5rem; }
+    .section-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.75rem; padding-bottom: 0.875rem; border-bottom: 1px solid var(--border); position: relative; }
+    .section-header::before { content: ''; position: absolute; bottom: -1px; left: 0; width: 50px; height: 2px; background: var(--gold); }
+    .section-num { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; min-width: 30px; }
+    .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.5rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+    .sub-title { font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin: 1.75rem 0 0.875rem; }
     .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
-    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 1rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.875rem; }
 
-    /* ============================================================
-       CARTES STATS (métriques)
-    ============================================================ */
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem 1.5rem;
-      transition: border-color 0.2s;
-    }
-    .stat-card:hover { border-color: var(--border-gold); }
-    .stat-card-label {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 6px;
-    }
-    .stat-card-value {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--gold);
-      line-height: 1;
-    }
-    .stat-card-sub {
-      font-size: 12px;
-      color: var(--text-dim);
-      margin-top: 4px;
-    }
+    /* ── COMPOSANTS ── */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.4rem; }
+    .card:hover { border-color: var(--gold-border); transition: border-color 0.2s; }
+    .card-label { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--dim); margin-bottom: 0.75rem; }
+    .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.4rem; }
+    .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+    .stat-value { font-family: 'Barlow Condensed', sans-serif; font-size: 1.9rem; font-weight: 700; color: var(--gold); line-height: 1; }
+    .stat-sub { font-size: 11px; color: var(--dim); margin-top: 3px; }
 
-    /* ============================================================
-       CARTES GÉNÉRIQUES
-    ============================================================ */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem 1.5rem;
-    }
-    .card-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 1rem;
-    }
-
-    /* ============================================================
-       LISTE DE LIGNES (finances, classement)
-    ============================================================ */
     .row-list { list-style: none; }
-    .row-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      gap: 1rem;
-    }
+    .row-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); gap: 1rem; font-size: 13px; }
     .row-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .row-label {
-      color: var(--text-muted);
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .row-value {
-      font-weight: 600;
-      font-size: 14px;
-      color: var(--text);
-      white-space: nowrap;
-    }
-    .row-value.gain { color: var(--green); }
-    .row-value.loss { color: var(--red); }
+    .row-lbl { color: var(--muted); }
+    .row-val { font-weight: 600; color: var(--text); white-space: nowrap; }
+    .row-val.g { color: var(--green); }
+    .row-val.r { color: var(--red); }
 
-    /* ============================================================
-       ÉCURIES
-    ============================================================ */
-    .ecurie-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1rem;
-    }
-    .ecurie-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.1rem 1.4rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      transition: border-color 0.2s, transform 0.15s;
-      cursor: default;
-    }
-    .ecurie-card:hover { border-color: var(--border-gold); transform: translateY(-2px); }
-    .ecurie-num {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700;
-      font-size: 14px;
-      flex-shrink: 0;
-      border: 1.5px solid;
-    }
-    .ecurie-info { flex: 1; }
-    .ecurie-name {
-      font-weight: 600;
-      font-size: 15px;
-      margin-bottom: 4px;
-    }
-    .ecurie-detail {
-      font-size: 12px;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    /* Couleurs des écuries — modifie ici */
-    .e1 { color: #F0A500; border-color: #F0A500; background: rgba(240,165,0,0.08); }
-    .e2 { color: #3b8bfa; border-color: #3b8bfa; background: rgba(59,139,250,0.08); }
-    .e3 { color: #2ecc71; border-color: #2ecc71; background: rgba(46,204,113,0.08); }
-    .e4 { color: #e74c3c; border-color: #e74c3c; background: rgba(231,76,60,0.08); }
-    .e5 { color: #a855f7; border-color: #a855f7; background: rgba(168,85,247,0.08); }
-    .e6 { color: #ff7d4d; border-color: #ff7d4d; background: rgba(255,125,77,0.08); }
-    .e7 { color: #06b6d4; border-color: #06b6d4; background: rgba(6,182,212,0.08); }
-    .e8 { color: #aaa; border-color: #aaa; background: rgba(170,170,170,0.08); }
+    .badge { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; }
+    .b-gold   { background: var(--gold-dim); color: var(--gold); }
+    .b-green  { background: rgba(46,204,113,0.1); color: #2ecc71; }
+    .b-blue   { background: rgba(59,139,250,0.1); color: #5ba5ff; }
+    .b-red    { background: rgba(231,76,60,0.1);  color: #e74c3c; }
+    .b-purple { background: rgba(168,85,247,0.1); color: #b97ef7; }
+    .b-gray   { background: rgba(150,150,150,0.1); color: #aaa; }
 
-    /* ============================================================
-       BADGES
-    ============================================================ */
-    .badge {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      padding: 2px 8px;
-      border-radius: 4px;
-    }
-    .badge-gold   { background: rgba(240,165,0,0.15);  color: var(--gold); }
-    .badge-green  { background: rgba(46,204,113,0.12); color: #2ecc71; }
-    .badge-blue   { background: rgba(59,139,250,0.12); color: #5ba5ff; }
-    .badge-red    { background: rgba(231,76,60,0.12);  color: #e74c3c; }
-    .badge-purple { background: rgba(168,85,247,0.12); color: #b97ef7; }
+    /* ── ÉCURIES ── */
+    .ecurie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 0.875rem; }
+    .ecurie-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 0.875rem; transition: border-color 0.2s, transform 0.15s; }
+    .ecurie-card:hover { border-color: var(--gold-border); transform: translateY(-2px); }
+    .ecurie-num { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 13px; flex-shrink: 0; border: 1.5px solid; }
+    .ecurie-name { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
+    .ecurie-detail { font-size: 11px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
 
-    /* ============================================================
-       TABLE POINTS F1
-    ============================================================ */
-    .points-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    .points-table th {
-      text-align: left;
-      padding: 10px 12px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      border-bottom: 1px solid var(--border);
-    }
-    .points-table td {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      color: var(--text-muted);
-    }
-    .points-table tr:last-child td { border-bottom: none; }
-    .points-table tr:hover td { background: var(--surface-2); }
-    .points-table .pos-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      font-weight: 700;
-      font-size: 12px;
-    }
-    .pos-1 { background: #2a1e00; color: var(--gold); border: 1px solid var(--gold); }
-    .pos-2 { background: #1a1a1a; color: #bbb; border: 1px solid #555; }
-    .pos-3 { background: #1a1000; color: #cd7f32; border: 1px solid #cd7f32; }
-    .pos-n { background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border); }
-    .pts-value { font-weight: 700; color: var(--text); font-size: 15px; }
-    .gain-value { color: var(--green); font-weight: 600; }
+    /* ── CLASSEMENT ── */
+    .classement-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .classement-table th { text-align: left; padding: 9px 10px; font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--dim); border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .classement-table td { padding: 10px 10px; border-bottom: 1px solid var(--border); color: var(--muted); white-space: nowrap; }
+    .classement-table tr:last-child td { border-bottom: none; }
+    .classement-table tr:hover td { background: var(--surface2); }
+    .classement-table .pts { font-weight: 700; color: var(--text); font-size: 14px; }
+    .classement-table .total-pts { font-weight: 700; color: var(--gold); font-size: 15px; }
+    .pos-badge { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; font-weight: 700; font-size: 11px; }
+    .p1 { background: rgba(240,165,0,0.15); color: var(--gold); border: 1px solid var(--gold); }
+    .p2 { background: rgba(170,170,170,0.1); color: #bbb; border: 1px solid #555; }
+    .p3 { background: rgba(205,127,50,0.15); color: #cd7f32; border: 1px solid #cd7f32; }
+    .pn { background: var(--surface2); color: var(--dim); border: 1px solid var(--border); }
 
-    /* ============================================================
-       BLOC P&L (Compte de résultat)
-    ============================================================ */
-    .pnl-block {
-      border-radius: 10px;
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 1rem;
-    }
-    .pnl-revenus { background: rgba(46,204,113,0.05); border: 1px solid rgba(46,204,113,0.2); }
-    .pnl-depenses { background: rgba(231,76,60,0.05);  border: 1px solid rgba(231,76,60,0.2); }
-    .pnl-benef    { background: rgba(240,165,0,0.05);  border: 2px solid rgba(240,165,0,0.4); }
-    .pnl-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-    .pnl-revenus  .pnl-title { color: var(--green); }
-    .pnl-depenses .pnl-title { color: var(--red); }
-    .pnl-benef    .pnl-title { color: var(--gold); }
-    .pnl-item {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      padding: 4px 0;
-      color: var(--text-muted);
-    }
-    .pnl-total {
-      display: flex;
-      justify-content: space-between;
-      font-size: 16px;
-      font-weight: 700;
-      border-top: 1px solid;
-      margin-top: 10px;
-      padding-top: 10px;
-    }
-    .pnl-revenus  .pnl-total { border-color: rgba(46,204,113,0.3);  color: var(--green); }
-    .pnl-depenses .pnl-total { border-color: rgba(231,76,60,0.3);   color: var(--red); }
-    .pnl-benef    .pnl-total { border-color: rgba(240,165,0,0.4);   color: var(--gold); font-size: 20px; }
+    /* ── CALENDRIER ── */
+    .manche-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; }
+    .manche-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; position: relative; overflow: hidden; transition: border-color 0.2s; }
+    .manche-card:hover { border-color: var(--gold-border); }
+    .manche-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold), transparent); }
+    .manche-num { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+    .manche-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .manche-loc { font-size: 11px; color: var(--muted); }
+    .manche-status { margin-top: 8px; }
 
-    /* ============================================================
-       SPONSORS
-    ============================================================ */
-    .sponsor-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1rem;
-    }
-    .sponsor-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-      transition: border-color 0.2s;
-    }
-    .sponsor-card:hover { border-color: var(--border-gold); }
-    .sponsor-tier {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 6px;
-    }
-    .sponsor-amount {
-      font-size: 1.5rem;
-      font-weight: 700;
-      font-family: 'Barlow Condensed', sans-serif;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-    .sponsor-perks {
-      font-size: 13px;
-      color: var(--text-muted);
-      list-style: none;
-    }
-    .sponsor-perks li {
-      padding: 3px 0;
-      padding-left: 14px;
-      position: relative;
-    }
-    .sponsor-perks li::before {
-      content: '→';
-      position: absolute;
-      left: 0;
-      color: var(--gold);
-      font-size: 11px;
-    }
+    /* ── P&L ── */
+    .pnl { border-radius: 10px; padding: 1.1rem 1.4rem; margin-bottom: 0.875rem; }
+    .pnl.rev { background: rgba(46,204,113,0.04); border: 1px solid rgba(46,204,113,0.2); }
+    .pnl.dep { background: rgba(231,76,60,0.04);  border: 1px solid rgba(231,76,60,0.2); }
+    .pnl.ben { background: rgba(240,165,0,0.04);  border: 2px solid var(--gold-border); }
+    .pnl-title { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+    .pnl.rev .pnl-title { color: var(--green); }
+    .pnl.dep .pnl-title { color: var(--red); }
+    .pnl.ben .pnl-title { color: var(--gold); }
+    .pnl-item { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; color: var(--muted); }
+    .pnl-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; border-top: 1px solid; margin-top: 8px; padding-top: 8px; }
+    .pnl.rev .pnl-total { border-color: rgba(46,204,113,0.25); color: var(--green); }
+    .pnl.dep .pnl-total { border-color: rgba(231,76,60,0.25);  color: var(--red); }
+    .pnl.ben .pnl-total { border-color: var(--gold-border); color: var(--gold); font-size: 18px; }
 
-    /* ============================================================
-       RÈGLEMENT
-    ============================================================ */
-    .rule-block {
-      padding: 1rem 1.25rem;
-      padding-left: 1.5rem;
-      border-left: 2px solid var(--gold);
-      background: var(--surface);
-      border-radius: 0 8px 8px 0;
-      margin-bottom: 10px;
-      font-size: 14px;
-      line-height: 1.7;
-      color: var(--text-muted);
-    }
-    .rule-block strong { color: var(--text); }
+    /* ── RÈGLEMENT & SPONSOR ── */
+    .rule { padding: 0.875rem 1.1rem 0.875rem 1.25rem; border-left: 2px solid var(--gold); background: var(--surface); border-radius: 0 8px 8px 0; margin-bottom: 8px; font-size: 13px; line-height: 1.7; color: var(--muted); }
+    .rule strong { color: var(--text); }
+    .sponsor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+    .sponsor-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; transition: border-color 0.2s; }
+    .sponsor-card:hover { border-color: var(--gold-border); }
+    .sponsor-tier { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+    .sponsor-amount { font-family: 'Barlow Condensed', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .sponsor-perks { font-size: 12px; color: var(--muted); list-style: none; }
+    .sponsor-perks li { padding: 2px 0 2px 14px; position: relative; }
+    .sponsor-perks li::before { content: '→'; position: absolute; left: 0; color: var(--gold); font-size: 10px; }
 
-    /* ============================================================
-       CALENDRIER
-    ============================================================ */
-    .manche-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-    }
-    .manche-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.2s;
-    }
-    .manche-card:hover { border-color: var(--border-gold); }
-    .manche-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--gold), transparent);
-    }
-    .manche-num {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 8px;
-    }
-    .manche-name {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-    .manche-loc { font-size: 12px; color: var(--text-muted); }
+    .highlight { background: rgba(240,165,0,0.04); border: 1.5px solid var(--gold-border); border-radius: 10px; padding: 1.1rem 1.4rem; margin-bottom: 1.75rem; }
+    .highlight-title { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+    .highlight-body { font-size: 13px; color: var(--muted); line-height: 1.7; }
+    .highlight-body strong { color: var(--text); }
+    .info { font-size: 12px; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 13px; margin-top: 0.875rem; line-height: 1.6; }
+    .info strong { color: var(--gold); }
 
-    /* ============================================================
-       ÉTAPES (recrutement)
-    ============================================================ */
-    .steps { display: flex; flex-direction: column; gap: 12px; }
-    .step {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-    }
-    .step-num {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: var(--gold);
-      color: #1a0e00;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .step-body { flex: 1; }
-    .step-title {
-      font-weight: 600;
-      font-size: 14px;
-      margin-bottom: 4px;
-      color: var(--text);
-    }
-    .step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    /* ── STEPS ── */
+    .steps { display: flex; flex-direction: column; gap: 10px; }
+    .step { display: flex; gap: 0.875rem; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.875rem 1.1rem; }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--gold); color: #1a0e00; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-title { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+    .step-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
 
-    /* ============================================================
-       NOTE INFO
-    ============================================================ */
-    .info-note {
-      font-size: 13px;
-      color: var(--text-muted);
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 14px;
-      margin-top: 1rem;
-      line-height: 1.6;
-    }
-    .info-note strong { color: var(--gold); }
+    /* ── LOADING ── */
+    .loading { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; padding: 1.5rem 0; }
+    .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .skeleton { background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 6px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-    /* ============================================================
-       HIGHLIGHT BOX (encadré important)
-    ============================================================ */
-    .highlight-box {
-      background: rgba(240,165,0,0.04);
-      border: 1.5px solid var(--border-gold);
-      border-radius: 10px;
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 2rem;
-    }
-    .highlight-box-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 8px;
-    }
-    .highlight-box-body { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
-    .highlight-box-body strong { color: var(--text); }
+    /* ── ALERT SHEET NON CONFIGURÉ ── */
+    .setup-banner { background: rgba(240,165,0,0.06); border: 1px solid var(--gold-border); border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+    .setup-banner h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+    .setup-banner ol { font-size: 13px; color: var(--muted); padding-left: 1.2rem; line-height: 2; }
+    .setup-banner code { background: var(--surface2); padding: 1px 6px; border-radius: 4px; font-family: monospace; color: var(--text); font-size: 12px; }
+    .setup-banner .step-final { margin-top: 0.75rem; font-size: 13px; color: var(--muted); }
 
-    /* ============================================================
-       FOOTER
-    ============================================================ */
-    footer {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      text-align: center;
-      padding: 2rem 1.5rem;
-    }
-    .footer-logo {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.5rem;
-      font-weight: 800;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 6px;
-    }
-    .footer-sub { font-size: 12px; color: var(--text-dim); letter-spacing: 1px; }
+    /* ── FOOTER ── */
+    footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center; padding: 2rem 1.5rem; }
+    .footer-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.4rem; font-weight: 800; letter-spacing: 3px; color: var(--gold); margin-bottom: 5px; }
+    .footer-sub { font-size: 11px; color: var(--dim); letter-spacing: 1px; }
 
-    /* ============================================================
-       RESPONSIVE MOBILE
-    ============================================================ */
+    /* ── RESPONSIVE ── */
     @media (max-width: 640px) {
-      .header-inner { gap: 1rem; }
-      nav a { font-size: 11px; padding: 5px 8px; }
+      .header-inner { gap: 0.75rem; }
+      nav a { font-size: 10px; padding: 4px 7px; }
       .hero { padding: 3rem 1rem 2.5rem; }
       main { padding: 2rem 1rem 4rem; }
-      .section { margin-bottom: 3.5rem; }
-      .pnl-block { padding: 1rem; }
-      .pnl-item { font-size: 12px; }
+      .section { margin-bottom: 3rem; }
     }
   </style>
 </head>
-
 <body>
 
-  <!-- ============================================================
-       HEADER — Modifie le nom et les liens de navigation ici
-  ============================================================ -->
-  <header>
-    <div class="header-inner">
-      <a href="#" class="logo">
-        <div class="logo-badge">SAM</div>
-        <div class="logo-text">
-          <!-- Nom court affiché dans le header -->
-          <span class="logo-title">San Andreas Motors</span>
-          <span class="logo-sub">Fédération Officielle RP</span>
-        </div>
-      </a>
-      <nav>
-        <a href="#structure">Structure</a>
-        <a href="#ecurie">Écuries</a>
-        <a href="#finances">Finances</a>
-        <a href="#calendrier">Calendrier</a>
-        <a href="#classement">Classement</a>
-        <a href="#sponsors">Sponsors</a>
-        <a href="#reglement">Règlement</a>
-      </nav>
+<!-- ══════════════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════════════ -->
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-badge">SAM</div>
+      <div>
+        <div class="logo-name" id="h-nom">San Andreas Motors</div>
+        <div class="logo-sub">Fédération Officielle RP</div>
+      </div>
+    </a>
+    <nav>
+      <a href="#ecuries">Écuries</a>
+      <a href="#classement">Classement</a>
+      <a href="#calendrier">Calendrier</a>
+      <a href="#finances">Finances</a>
+      <a href="#sponsors">Sponsors</a>
+      <a href="#reglement">Règlement</a>
+    </nav>
+    <button class="sync-btn" onclick="loadAll(true)">↻ Sync</button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-badge" id="h-saison">Saison 1 · Championnat Officiel</div>
+  <h1>San Andreas <span id="h-title2">Motors</span></h1>
+  <p class="hero-tagline" id="h-tagline">Fédération de course RP · Los Santos, San Andreas</p>
+  <div class="hero-stats" id="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-val" id="hs-ecuries">8</div><div class="hero-stat-lbl">Écuries</div></div>
+    <div class="hero-stat"><div class="hero-stat-val" id="hs-pilotes">16</div><div class="hero-stat-lbl">Pilotes</div></div>
+    <div class="hero-stat"><div class="hero-stat-val" id="hs-manches">4</div><div class="hero-stat-lbl">Manches</div></div>
+    <div class="hero-stat"><div class="hero-stat-val" id="hs-inscription">$200k</div><div class="hero-stat-lbl">Inscription</div></div>
+  </div>
+</section>
+
+<main>
+
+  <!-- Banner setup affiché si Sheet non configuré -->
+  <div id="setup-banner" class="setup-banner" style="display:none;">
+    <h3>⚙️ Configuration Google Sheets requise</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:0.75rem;">Le site fonctionne en mode démo. Pour le connecter à Google Sheets :</p>
+    <ol>
+      <li>Ouvre le fichier <code>index.html</code> dans un éditeur de texte</li>
+      <li>Cherche la ligne : <code>const SHEET_ID = 'YOUR_SHEET_ID'</code></li>
+      <li>Remplace <code>YOUR_SHEET_ID</code> par l'ID de ta feuille Google</li>
+      <li>Dans Google Sheets : <strong style="color:var(--text)">Fichier → Partager → Publier sur le Web → CSV</strong></li>
+      <li>L'ID est dans l'URL de ta feuille : <code>docs.google.com/spreadsheets/d/<strong style="color:var(--gold)">CECI_EST_L_ID</strong>/edit</code></li>
+    </ol>
+    <p class="step-final">📋 <a href="#" onclick="copySheetTemplate(); return false;" style="color:var(--gold);">Copier la structure des onglets</a> à créer dans ton Google Sheets</p>
+  </div>
+
+  <!-- ══ SECTION ÉCURIES ══ -->
+  <section class="section" id="ecuries">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">Les Écuries</h2>
     </div>
-  </header>
+    <div id="ecuries-container">
+      <div class="loading"><div class="spinner"></div> Chargement des écuries...</div>
+    </div>
+    <div id="ecuries-info" class="info" style="display:none;"></div>
+  </section>
 
-  <!-- ============================================================
-       HERO — Modifie le titre, sous-titre et statistiques ici
-  ============================================================ -->
-  <section class="hero">
-    <div class="hero-season">Saison 1 · Championnat Officiel</div>
-
-    <h1>San Andreas <span>Motors</span></h1>
-    <p class="hero-tagline">Fédération de course RP · Los Santos, San Andreas</p>
-
-    <!-- Statistiques affichées dans le hero -->
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="hero-stat-value">8</div>
-        <div class="hero-stat-label">Écuries</div>
-      </div>
-      <div class="hero-stat">
-        <div class="hero-stat-value">16</div>
-        <div class="hero-stat-label">Pilotes</div>
-      </div>
-      <div class="hero-stat">
-        <div class="hero-stat-value">4</div>
-        <div class="hero-stat-label">Manches</div>
-      </div>
-      <div class="hero-stat">
-        <div class="hero-stat-value">$200k</div>
-        <div class="hero-stat-label">Inscription</div>
-      </div>
+  <!-- ══ SECTION CLASSEMENT PILOTES ══ -->
+  <section class="section" id="classement">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Classement Pilotes</h2>
+    </div>
+    <div id="classement-container">
+      <div class="loading"><div class="spinner"></div> Chargement du classement...</div>
     </div>
   </section>
 
-  <main>
-
-    <!-- ============================================================
-         SECTION 1 — STRUCTURE
-    ============================================================ -->
-    <section class="section" id="structure">
-      <div class="section-header">
-        <span class="section-num">01</span>
-        <h2 class="section-title">Structure de la Fédération</h2>
-      </div>
-
-      <!-- Métriques principales -->
-      <div class="grid-4" style="margin-bottom: 2rem;">
-        <div class="stat-card">
-          <div class="stat-card-label">Pilotes par écurie</div>
-          <div class="stat-card-value">2</div>
-          <div class="stat-card-sub">minimum requis</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-label">Mécanicien par écurie</div>
-          <div class="stat-card-value">1</div>
-          <div class="stat-card-sub">rôle technique obligatoire</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-label">Manches par saison</div>
-          <div class="stat-card-value">4</div>
-          <div class="stat-card-sub">incluses dans l'inscription</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-label">Budget conseillé</div>
-          <div class="stat-card-value">$230k</div>
-          <div class="stat-card-sub">inscription + caution</div>
-        </div>
-      </div>
-
-      <!-- Priorité de recrutement -->
-      <h3 style="font-family:'Barlow Condensed',sans-serif; font-size:1.1rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-muted); margin-bottom:1rem;">Priorité de recrutement des pilotes</h3>
-      <div class="steps">
-
-        <!-- Étape 1 — Modifie la description ici -->
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-body">
-            <div class="step-title">Pilotes internes — priorité absolue</div>
-            <div class="step-desc">Employés ou membres de l'entreprise sponsor. Si le sponsor dispose de pilotes qualifiés parmi ses membres, ils sont placés en priorité sur les sièges disponibles avant tout recrutement externe.</div>
-          </div>
-        </div>
-
-        <!-- Étape 2 -->
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-body">
-            <div class="step-title">Pilotes externes financés</div>
-            <div class="step-desc">Tout joueur externe capable de co-financer ou d'apporter un contrat de partenariat validé par la SAM peut prétendre à un siège si les places internes ne sont pas toutes comblées.</div>
-          </div>
-        </div>
-
-        <!-- Étape 3 -->
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-body">
-            <div class="step-title">Free agents — qualifications SAM</div>
-            <div class="step-desc">Recrutement ouvert lors des sessions de qualification officielles SAM si des sièges sont encore vacants 72h avant le début du championnat.</div>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="info-note" style="margin-top:1rem;">
-        <strong>Mécanicien :</strong> peut être interne (membre sponsor) ou externe. Il gère les arrêts aux stands, les stratégies de course et les pénalités techniques. Son recrutement est indépendant des pilotes.
-      </div>
-    </section>
-
-    <!-- ============================================================
-         SECTION 2 — LES 8 ÉCURIES
-         Pour modifier : changer les noms, couleurs (e1 à e8), badges
-    ============================================================ -->
-    <section class="section" id="ecurie">
-      <div class="section-header">
-        <span class="section-num">02</span>
-        <h2 class="section-title">Les 8 Écuries</h2>
-      </div>
-
-      <div class="ecurie-grid">
-
-        <!-- ÉCURIE 1 — Modifie le nom, badge et statut ici -->
-        <div class="ecurie-card">
-          <div class="ecurie-num e1">E1</div>
-          <div class="ecurie-info">
-            <div class="ecurie-name">Los Santos Racing Team</div>
-            <div class="ecurie-detail">
-              2 pilotes · 1 mécanicien
-              <span class="badge badge-gold">Sponsor requis</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ÉCURIE 2 -->
-        <div class="ecurie-card">
-          <div class="ecurie-num e2">E2</div>
-          <div class="ecurie-info">
-            <div class="ecurie-name">Vinewood Motorsport</div>
-            <div class="ecurie-detail">
-              2 pilotes · 1 mécanicien
-              <span class="badge badge-blue">Slot libre</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ÉCURIE 3 -->
-        <div class="ecurie-card">
-          <div class="ecurie-num e3">E3</div>
-          <div class="ecurie-info">
-            <div class="ecurie-name">Blaine County Speed</div>
-            <div class="ecurie-detail">
-              2 pilotes · 1 mécanicien
-              <span class="badge badge-green">Open</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ÉCURIE 4 -->
-        <div class="ecurie-card">
-          <div class="ecurie-num e4">E4</div>
-          <div class="ecurie-info">
-            <div class="ecurie-name">Del Perro Racing</div>
-            <div class="ecurie-detail">
-              2 pilotes · 1 mécanicien
-              <span class="badge badge-red">Financé</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ÉCURIE 5 -->
-        <div class="ecurie-card">
-          <div class="ecurie-num e5">E5</div>
-          <div class="ecurie-info">
-            <div class="ecurie-name">Pillbox Mechanics Club</div>
-            <div class="ecurie-detail">
-              2 pilotes · 1 mécanicien
-              <span class="badge badge-purple">Slot libre</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ÉCURIE 6 -->
-        <div class="ecurie-card">
-          <div class="ecurie-num e6">E6</div>
-          <div class="ecurie-info">
-            <div class="ecurie-name">Rockford Hills GP</div>
-            <div class="ecurie-detail">
-              2 pilotes · 1 mécanicien
-              <span class="badge badge-gold">Sponsor requis</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ÉCURIE 7 -->
-        <div class="ecurie-card">
-          <div class="ecurie-num e7">E7</div>
-          <div class="ecurie-info">
-            <div class="ecurie-name">Chumash Coastal Racing</div>
-            <div class="ecurie-detail">
-              2 pilotes · 1 mécanicien
-              <span class="badge badge-blue">Open</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ÉCURIE 8 -->
-        <div class="ecurie-card">
-          <div class="ecurie-num e8">E8</div>
-          <div class="ecurie-info">
-            <div class="ecurie-name">Sandy Shores Xpeed</div>
-            <div class="ecurie-detail">
-              2 pilotes · 1 mécanicien
-              <span class="badge badge-gold">Slot libre</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="info-note">
-        Toute écurie dont la composition est incomplète 24h avant une manche est sanctionnée de <strong>−5 pts constructeur</strong> et d'une amende de <strong>$10 000</strong>.
-      </div>
-    </section>
-
-    <!-- ============================================================
-         SECTION 3 — FINANCES
-         Modifie les montants ici
-    ============================================================ -->
-    <section class="section" id="finances">
-      <div class="section-header">
-        <span class="section-num">03</span>
-        <h2 class="section-title">Finances</h2>
-      </div>
-
-      <!-- Encadré principal -->
-      <div class="highlight-box">
-        <div class="highlight-box-title">🔒 Inscription unique — accès complet</div>
-        <div class="highlight-box-body">
-          Une fois l'inscription payée, l'écurie participe aux <strong>4 manches du championnat sans aucun frais supplémentaire</strong>.
-          Un seul paiement pour toute la saison — pas de frais par course.
-        </div>
-      </div>
-
-      <!-- Frais d'entrée -->
-      <div class="grid-3" style="margin-bottom:2rem;">
-        <div class="stat-card">
-          <div class="stat-card-label">Inscription saison complète</div>
-          <!-- MODIFIE LE MONTANT ICI -->
-          <div class="stat-card-value">$200 000</div>
-          <div class="stat-card-sub">accès aux 4 manches inclus</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-label">Caution réglementaire</div>
-          <div class="stat-card-value">$30 000</div>
-          <div class="stat-card-sub">remboursable fin de saison</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-label">Total à verser à l'inscription</div>
-          <div class="stat-card-value">$230 000</div>
-          <div class="stat-card-sub">dont $30k récupérables</div>
-        </div>
-      </div>
-
-      <!-- Gains par course -->
-      <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;">Gains par course</h3>
-      <div class="grid-2" style="margin-bottom:2rem;">
-
-        <div class="card">
-          <div class="card-title">Pilotes</div>
-          <ul class="row-list">
-            <li class="row-item">
-              <span class="row-label">🥇 Victoire (1ère place)</span>
-              <span class="row-value gain">+$20 000</span>
-            </li>
-            <li class="row-item">
-              <span class="row-label">🥈🥉 Podium (2e / 3e)</span>
-              <span class="row-value gain">+$12 000</span>
-            </li>
-            <li class="row-item">
-              <span class="row-label">Top 8 (4e à 8e)</span>
-              <span class="row-value gain">+$6 000</span>
-            </li>
-            <li class="row-item">
-              <span class="row-label">Participation (9e–16e)</span>
-              <span class="row-value">+$2 000</span>
-            </li>
-            <li class="row-item">
-              <span class="row-label">⚡ Bonus pole position</span>
-              <span class="row-value gain">+$3 000</span>
-            </li>
-            <li class="row-item">
-              <span class="row-label">⚡ Bonus meilleur tour</span>
-              <span class="row-value gain">+$3 000</span>
-            </li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Mécanicien</div>
-          <ul class="row-list">
-            <li class="row-item">
-              <span class="row-label">Stand parfait (0 erreur)</span>
-              <span class="row-value gain">+$8 000</span>
-            </li>
-            <li class="row-item">
-              <span class="row-label">Participation</span>
-              <span class="row-value">+$3 000</span>
-            </li>
-          </ul>
-          <div class="card-title" style="margin-top:1.25rem;">Bonus spéciaux</div>
-          <ul class="row-list">
-            <li class="row-item">
-              <span class="row-label">🏆 Hat-trick (pole + victoire + meilleur tour)</span>
-              <span class="row-value gain">+$10 000</span>
-            </li>
-            <li class="row-item">
-              <span class="row-label">📈 Remontée +5 places</span>
-              <span class="row-value gain">+$5 000</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Primes fin de championnat -->
-      <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;">Primes fin de championnat</h3>
-      <div class="grid-2" style="margin-bottom:2rem;">
-
-        <div class="card">
-          <div class="card-title">Classement Pilotes</div>
-          <ul class="row-list">
-            <li class="row-item"><span class="row-label">🥇 Champion pilote</span><span class="row-value gain">$80 000</span></li>
-            <li class="row-item"><span class="row-label">🥈 Vice-champion</span><span class="row-value gain">$45 000</span></li>
-            <li class="row-item"><span class="row-label">🥉 3ème place</span><span class="row-value" style="color:#cd7f32;">$25 000</span></li>
-            <li class="row-item"><span class="row-label">4e – 6e place</span><span class="row-value">$10 000</span></li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Classement Constructeurs</div>
-          <ul class="row-list">
-            <li class="row-item"><span class="row-label">🏆 Écurie championne</span><span class="row-value gain">$150 000</span></li>
-            <li class="row-item"><span class="row-label">2e constructeur</span><span class="row-value gain">$75 000</span></li>
-            <li class="row-item"><span class="row-label">3e constructeur</span><span class="row-value" style="color:#cd7f32;">$35 000</span></li>
-            <li class="row-item"><span class="row-label">4e – 6e constructeur</span><span class="row-value">$15 000</span></li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Compte de résultat fédération -->
-      <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;">Compte de résultat — Fédération SAM</h3>
-
-      <div class="pnl-block pnl-revenus">
-        <div class="pnl-title">▲ Revenus fédération</div>
-        <!-- MODIFIE LES MONTANTS ICI -->
-        <div class="pnl-item"><span>Inscriptions saison (8 écuries × $200k)</span><span>$1 600 000</span></div>
-        <div class="pnl-item"><span>Cautions retenues (infractions ~20% des écuries)</span><span>$48 000</span></div>
-        <div class="pnl-total"><span>Total revenus</span><span>$1 648 000</span></div>
-      </div>
-
-      <div class="pnl-block pnl-depenses">
-        <div class="pnl-title">▼ Dépenses — primes versées</div>
-        <div class="pnl-item"><span>Primes course × 4 manches (estimé moyen)</span><span>− $500 000</span></div>
-        <div class="pnl-item"><span>Primes fin de championnat — pilotes</span><span>− $230 000</span></div>
-        <div class="pnl-item"><span>Primes fin de championnat — constructeurs</span><span>− $350 000</span></div>
-        <div class="pnl-item"><span>Remboursement cautions (80% sans infraction)</span><span>− $192 000</span></div>
-        <div class="pnl-total"><span>Total dépenses</span><span>− $1 272 000</span></div>
-      </div>
-
-      <div class="pnl-block pnl-benef">
-        <div class="pnl-title">★ Bénéfice net fédération</div>
-        <div class="pnl-item"><span>Revenus</span><span>$1 648 000</span></div>
-        <div class="pnl-item"><span>Dépenses</span><span>− $1 272 000</span></div>
-        <div class="pnl-total"><span>Bénéfice net saison</span><span>~$376 000</span></div>
-      </div>
-    </section>
-
-    <!-- ============================================================
-         SECTION 4 — CALENDRIER
-         Modifie les noms et lieux des manches ici
-    ============================================================ -->
-    <section class="section" id="calendrier">
-      <div class="section-header">
-        <span class="section-num">04</span>
-        <h2 class="section-title">Calendrier Saison 1</h2>
-      </div>
-
-      <div class="manche-grid">
-
-        <!-- MANCHE 1 — Modifie ici -->
-        <div class="manche-card">
-          <div class="manche-num">Manche 1</div>
-          <div class="manche-name">Grand Prix de Los Santos</div>
-          <div class="manche-loc">Circuit urbain · Downtown LS</div>
-        </div>
-
-        <!-- MANCHE 2 -->
-        <div class="manche-card">
-          <div class="manche-num">Manche 2</div>
-          <div class="manche-name">Grand Prix de Blaine County</div>
-          <div class="manche-loc">Circuit désert · Sandy Shores</div>
-        </div>
-
-        <!-- MANCHE 3 -->
-        <div class="manche-card">
-          <div class="manche-num">Manche 3</div>
-          <div class="manche-name">Grand Prix de Vinewood</div>
-          <div class="manche-loc">Circuit collines · Vinewood Hills</div>
-        </div>
-
-        <!-- MANCHE 4 (finale) -->
-        <div class="manche-card">
-          <div class="manche-num">Manche 4 — Finale</div>
-          <div class="manche-name">Grand Prix Final SAM</div>
-          <div class="manche-loc">Circuit mixte · Port de Los Santos</div>
-        </div>
-
-      </div>
-
-      <!-- Déroulé d'un week-end -->
-      <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin:2rem 0 1rem;">Déroulé d'un week-end de course</h3>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-body">
-            <div class="step-title">Qualifications</div>
-            <div class="step-desc">Chaque pilote effectue un tour chronométré. Le plus rapide obtient la pole position (+1 pt · +$3 000). La grille de départ est définie par les temps de qualif.</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-body">
-            <div class="step-title">Briefing mécaniciens</div>
-            <div class="step-desc">Les mécaniciens soumettent leur stratégie de stand à la direction SAM avant le départ. Tout changement en cours de course doit être signalé aux commissaires.</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-body">
-            <div class="step-title">Course principale</div>
-            <div class="step-desc">Attribution des points et primes selon le classement final. Le pilote réalisant le meilleur tour en course gagne +1 pt et +$3 000.</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-body">
-            <div class="step-title">Vérification & validation</div>
-            <div class="step-desc">Les commissaires SAM valident les résultats dans l'heure. Les primes sont versées après validation officielle. Délai de contestation : 1h, frais de dossier $5 000.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================
-         SECTION 5 — CLASSEMENT F1
-         Modifie les points et primes ici
-    ============================================================ -->
-    <section class="section" id="classement">
-      <div class="section-header">
-        <span class="section-num">05</span>
-        <h2 class="section-title">Système de Points — Style F1</h2>
-      </div>
-
-      <div class="card" style="overflow-x:auto;">
-        <table class="points-table">
-          <thead>
-            <tr>
-              <th>Position</th>
-              <th>Points</th>
-              <th>Prime course</th>
-              <th>Statut</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- MODIFIE LES POINTS ET PRIMES ICI -->
-            <tr>
-              <td><span class="pos-badge pos-1">1</span> &nbsp;1ère place</td>
-              <td><span class="pts-value">25 pts</span></td>
-              <td><span class="gain-value">$20 000</span></td>
-              <td><span class="badge badge-gold">Victoire</span></td>
-            </tr>
-            <tr>
-              <td><span class="pos-badge pos-2">2</span> &nbsp;2ème place</td>
-              <td><span class="pts-value">18 pts</span></td>
-              <td><span class="gain-value">$12 000</span></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><span class="pos-badge pos-3">3</span> &nbsp;3ème place</td>
-              <td><span class="pts-value">15 pts</span></td>
-              <td><span class="gain-value">$12 000</span></td>
-              <td><span class="badge badge-red">Podium</span></td>
-            </tr>
-            <tr>
-              <td><span class="pos-badge pos-n">4</span> &nbsp;4ème place</td>
-              <td>12 pts</td>
-              <td><span class="gain-value">$6 000</span></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><span class="pos-badge pos-n">5</span> &nbsp;5ème place</td>
-              <td>10 pts</td>
-              <td><span class="gain-value">$6 000</span></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><span class="pos-badge pos-n">6</span> &nbsp;6ème place</td>
-              <td>8 pts</td>
-              <td><span class="gain-value">$6 000</span></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><span class="pos-badge pos-n">7</span> &nbsp;7ème place</td>
-              <td>6 pts</td>
-              <td><span class="gain-value">$6 000</span></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><span class="pos-badge pos-n">8</span> &nbsp;8ème place</td>
-              <td>4 pts</td>
-              <td><span class="gain-value">$6 000</span></td>
-              <td><span class="badge badge-green">Zone points</span></td>
-            </tr>
-            <tr>
-              <td><span class="pos-badge pos-n">9</span> &nbsp;9ème place</td>
-              <td>2 pts</td>
-              <td>$2 000</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><span class="pos-badge pos-n">10</span> &nbsp;10ème place</td>
-              <td>1 pt</td>
-              <td>$2 000</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><span class="pos-badge pos-n">11+</span> &nbsp;Hors points</td>
-              <td style="color:var(--text-dim);">0 pt</td>
-              <td>$2 000</td>
-              <td><span style="font-size:12px;color:var(--text-dim);">participation</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="info-note">
-        Les points des 2 pilotes d'une même écurie sont <strong>additionnés</strong> pour le classement constructeurs. Bonus pole position : <strong>+1 pt</strong>. Bonus meilleur tour en course : <strong>+1 pt</strong>.
-      </div>
-    </section>
-
-    <!-- ============================================================
-         SECTION 6 — SPONSORS
-         Modifie les niveaux et montants ici
-    ============================================================ -->
-    <section class="section" id="sponsors">
-      <div class="section-header">
-        <span class="section-num">06</span>
-        <h2 class="section-title">Système de Sponsoring</h2>
-      </div>
-
-      <div class="highlight-box">
-        <div class="highlight-box-title">Principe</div>
-        <div class="highlight-box-body">
-          Une écurie peut être sponsorisée par une ou plusieurs entreprises privées du serveur.
-          Le sponsor finance tout ou partie des <strong>$200 000 d'inscription</strong> en échange de visibilité et de priorité sur les sièges.
-          Une écurie peut cumuler plusieurs sponsors pour atteindre le budget requis.
-        </div>
-      </div>
-
-      <div class="sponsor-cards">
-
-        <!-- NIVEAU 1 — Modifie ici -->
-        <div class="sponsor-card">
-          <div class="sponsor-tier">★ Sponsor Titre</div>
-          <div class="sponsor-amount">$150 000+</div>
-          <ul class="sponsor-perks">
-            <li>Nom de l'entreprise sur l'écurie</li>
-            <li>2 sièges pilotes prioritaires</li>
-            <li>Logo principal sur la livrée</li>
-            <li>Mention dans toutes les communications SAM</li>
-          </ul>
-        </div>
-
-        <!-- NIVEAU 2 -->
-        <div class="sponsor-card">
-          <div class="sponsor-tier">◆ Sponsor Principal</div>
-          <div class="sponsor-amount">$80 000+</div>
-          <ul class="sponsor-perks">
-            <li>Logo prioritaire sur la livrée</li>
-            <li>1 siège pilote ou mécanicien prioritaire</li>
-            <li>Mention dans les communications SAM</li>
-          </ul>
-        </div>
-
-        <!-- NIVEAU 3 -->
-        <div class="sponsor-card">
-          <div class="sponsor-tier">◇ Sponsor Associé</div>
-          <div class="sponsor-amount">$30 000+</div>
-          <ul class="sponsor-perks">
-            <li>Patch sur la carrosserie</li>
-            <li>Mention dans les communications</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="info-note">
-        Tout contrat de sponsoring doit être soumis et validé par la direction SAM avant le début du championnat. Un accord non validé est considéré comme nul.
-      </div>
-    </section>
-
-    <!-- ============================================================
-         SECTION 7 — RÈGLEMENT
-         Modifie les articles ici
-    ============================================================ -->
-    <section class="section" id="reglement">
-      <div class="section-header">
-        <span class="section-num">07</span>
-        <h2 class="section-title">Règlement Général S.A.M</h2>
-      </div>
-
-      <!-- ARTICLES — Modifie le texte de chaque article ici -->
-      <div class="rule-block">
-        <strong>Art. 1 — Inscription :</strong>
-        Frais d'entrée obligatoires de $200 000 + $30 000 de caution par écurie, à verser avant le début de la saison.
-        Ce paiement unique donne accès aux 4 manches du championnat. Sans paiement complet, l'écurie n'est pas admise sur la grille.
-      </div>
-
-      <div class="rule-block">
-        <strong>Art. 2 — Pas de frais par manche :</strong>
-        Une fois inscrite, l'écurie participe aux 4 courses sans aucun frais supplémentaire.
-        Seules les infractions peuvent entraîner des pénalités financières.
-      </div>
-
-      <div class="rule-block">
-        <strong>Art. 3 — Composition :</strong>
-        Chaque écurie doit aligner exactement 2 pilotes et 1 mécanicien.
-        Tout poste non pourvu 24h avant une course entraîne −5 pts au classement constructeur et une amende de $10 000.
-      </div>
-
-      <div class="rule-block">
-        <strong>Art. 4 — Priorité sponsor :</strong>
-        Les entreprises sponsors ont la priorité absolue pour occuper les sièges qu'elles financent.
-        Aucune écurie ne peut refuser un pilote sponsor qualifié et à jour de financement.
-      </div>
-
-      <div class="rule-block">
-        <strong>Art. 5 — Pilotes externes :</strong>
-        Tout pilote externe souhaitant intégrer une écurie doit présenter un plan de financement ou un contrat de partenariat validé par la SAM.
-        Les free agents passent par les qualifications officielles organisées avant la saison.
-      </div>
-
-      <div class="rule-block">
-        <strong>Art. 6 — Gains & primes :</strong>
-        Les primes de course sont versées automatiquement dans les 24h après validation des résultats par les commissaires SAM.
-        Toute contestation doit être déposée dans l'heure suivant la course. Frais de dossier : $5 000.
-      </div>
-
-      <div class="rule-block">
-        <strong>Art. 7 — Fair-play :</strong>
-        Toute collision intentionnelle, triche ou comportement anti-sportif entraîne une disqualification du round + −10 pts + $15 000 d'amende.
-        Récidive = suspension de 2 manches. Troisième infraction = exclusion définitive du championnat.
-      </div>
-
-      <div class="rule-block">
-        <strong>Art. 8 — Caution :</strong>
-        La caution de $30 000 est restituée en fin de saison si aucune sanction grave n'a été prononcée.
-        Elle est partiellement ou totalement retenue selon le barème des sanctions SAM.
-      </div>
-
-      <div class="rule-block">
-        <strong>Art. 9 — Cérémonie de clôture :</strong>
-        Les primes de fin de championnat sont versées lors de la cérémonie officielle SAM après la 4e manche.
-        Absence d'une écurie = report du versement de 7 jours uniquement.
-      </div>
-
-    </section>
-
-  </main>
-
-  <!-- ============================================================
-       FOOTER — Modifie le texte ici
-  ============================================================ -->
-  <footer>
-    <div class="footer-logo">S.A.M</div>
-    <div class="footer-sub">San Andreas Motors · Fédération de course RP · GTA · Saison 1</div>
-    <div style="margin-top:1rem; font-size:12px; color:var(--text-dim);">
-      Document officiel de la fédération — toute modification doit être approuvée par la direction SAM
+  <!-- ══ SECTION CLASSEMENT CONSTRUCTEURS ══ -->
+  <section class="section" id="constructeurs">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Classement Constructeurs</h2>
     </div>
-  </footer>
+    <div id="constructeurs-container">
+      <div class="loading"><div class="spinner"></div> Calcul des constructeurs...</div>
+    </div>
+  </section>
 
+  <!-- ══ SECTION CALENDRIER ══ -->
+  <section class="section" id="calendrier">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Calendrier</h2>
+    </div>
+    <div id="manches-container">
+      <div class="loading"><div class="spinner"></div> Chargement du calendrier...</div>
+    </div>
+  </section>
+
+  <!-- ══ SECTION FINANCES ══ -->
+  <section class="section" id="finances">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Finances</h2>
+    </div>
+    <div id="finances-container">
+      <div class="loading"><div class="spinner"></div> Chargement des données financières...</div>
+    </div>
+  </section>
+
+  <!-- ══ SECTION SPONSORS (statique) ══ -->
+  <section class="section" id="sponsors">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Sponsoring</h2>
+    </div>
+    <div class="highlight">
+      <div class="highlight-title">Principe</div>
+      <div class="highlight-body">Une écurie peut être sponsorisée par <strong>une ou plusieurs entreprises</strong> du serveur. Le sponsor finance tout ou partie des frais d'inscription en échange de visibilité et d'<strong>accès prioritaire aux sièges pilotes</strong>.</div>
+    </div>
+    <div class="sponsor-grid">
+      <div class="sponsor-card">
+        <div class="sponsor-tier">★ Sponsor Titre</div>
+        <div class="sponsor-amount">$150 000+</div>
+        <ul class="sponsor-perks">
+          <li>Nom de l'entreprise sur l'écurie</li>
+          <li>2 sièges pilotes prioritaires</li>
+          <li>Logo principal sur la livrée</li>
+          <li>Mention dans toutes les comms SAM</li>
+        </ul>
+      </div>
+      <div class="sponsor-card">
+        <div class="sponsor-tier">◆ Sponsor Principal</div>
+        <div class="sponsor-amount">$80 000+</div>
+        <ul class="sponsor-perks">
+          <li>Logo prioritaire sur la livrée</li>
+          <li>1 siège pilote ou mécanicien</li>
+          <li>Mention dans les communications</li>
+        </ul>
+      </div>
+      <div class="sponsor-card">
+        <div class="sponsor-tier">◇ Sponsor Associé</div>
+        <div class="sponsor-amount">$30 000+</div>
+        <ul class="sponsor-perks">
+          <li>Patch sur la carrosserie</li>
+          <li>Mention dans les communications</li>
+        </ul>
+      </div>
+      <div class="sponsor-card">
+        <div class="sponsor-tier">○ Partenaire Technique</div>
+        <div class="sponsor-amount">Non-cash</div>
+        <ul class="sponsor-perks">
+          <li>Véhicules, pièces, services RP</li>
+          <li>Valorisé par la SAM selon accord</li>
+        </ul>
+      </div>
+    </div>
+    <div class="info">Tout contrat de sponsoring doit être <strong>validé par la direction SAM</strong> avant le début du championnat. Accord non validé = nul.</div>
+  </section>
+
+  <!-- ══ SECTION RÈGLEMENT (statique) ══ -->
+  <section class="section" id="reglement">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2 class="section-title">Règlement</h2>
+    </div>
+    <div class="rule"><strong>Art. 1 — Inscription :</strong> $200 000 de frais d'entrée + $30 000 de caution à verser avant le début de la saison. Ce paiement unique donne accès à toutes les manches du championnat. Sans paiement complet, l'écurie n'est pas admise sur la grille.</div>
+    <div class="rule"><strong>Art. 2 — Pas de frais par manche :</strong> Une fois inscrite, l'écurie participe à toutes les courses sans frais supplémentaires. Seules les infractions peuvent entraîner des pénalités financières.</div>
+    <div class="rule"><strong>Art. 3 — Composition :</strong> 2 pilotes + 1 mécanicien obligatoires. Poste non pourvu 24h avant une course = −5 pts constructeur + $10 000 d'amende.</div>
+    <div class="rule"><strong>Art. 4 — Priorité sponsor :</strong> Les entreprises sponsors ont la priorité absolue sur les sièges qu'elles financent. Aucune écurie ne peut refuser un pilote sponsor qualifié.</div>
+    <div class="rule"><strong>Art. 5 — Pilotes externes :</strong> Tout pilote externe doit présenter un financement ou contrat validé par la SAM. Les free agents passent par les qualifications officielles.</div>
+    <div class="rule"><strong>Art. 6 — Gains :</strong> Primes versées dans les 24h après validation des commissaires. Contestation possible dans l'heure suivant la course (frais de dossier : $5 000).</div>
+    <div class="rule"><strong>Art. 7 — Fair-play :</strong> Collision intentionnelle = DQ + −10 pts + $15 000 d'amende. Récidive = 2 manches de suspension. 3e infraction = exclusion définitive.</div>
+    <div class="rule"><strong>Art. 8 — Caution :</strong> Les $30 000 sont restitués en fin de saison si aucune sanction grave. Retenus partiellement ou totalement selon le barème des infractions.</div>
+    <div class="rule"><strong>Art. 9 — Cérémonie de clôture :</strong> Primes de fin de championnat versées lors de la cérémonie officielle après la dernière manche.</div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-title" id="f-nom">S.A.M</div>
+  <div class="footer-sub" id="f-sub">San Andreas Motors · Fédération de course RP · GTA</div>
+</footer>
+
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT DYNAMIQUE
+══════════════════════════════════════════════════════ -->
+<script>
+
+// ============================================================
+// ★ CONFIGURATION — MODIFIE UNIQUEMENT CES LIGNES ★
+// ============================================================
+
+// Colle ici l'ID de ta feuille Google Sheets
+// (l'ID est dans l'URL : docs.google.com/spreadsheets/d/[ID]/edit)
+const SHEET_ID = 'YOUR_SHEET_ID';
+
+// Noms des onglets dans ta feuille (ne change pas si tu gardes les noms par défaut)
+const TABS = {
+  config:    'CONFIG',
+  ecuries:   'ECURIES',
+  resultats: 'RESULTATS',
+  manches:   'MANCHES'
+};
+
+// ============================================================
+// SYSTÈME DE POINTS F1 (modifie si tu veux changer le barème)
+// Index = position (1 à 16), valeur = points
+// ============================================================
+const POINTS_F1 = { 1:25, 2:18, 3:15, 4:12, 5:10, 6:8, 7:6, 8:4, 9:2, 10:1 };
+
+
+// ============================================================
+// DONNÉES DE DÉMO — Site fonctionnel même sans Google Sheets
+// ============================================================
+const DEMO = {
+  config: {
+    'Nom':                'San Andreas Motors',
+    'Saison':             'Saison 1',
+    'Manches':            '4',
+    'Tagline':            'Fédération de course RP · Los Santos, San Andreas',
+    'Inscription':        '200000',
+    'Caution':            '30000',
+    'Prime_Victoire':     '20000',
+    'Prime_Podium':       '12000',
+    'Prime_Top8':         '6000',
+    'Prime_Participation':'2000',
+    'Prime_Meca_Parfait': '8000',
+    'Prime_Meca_Part':    '3000',
+    'Prime_Champion':     '80000',
+    'Prime_Vice':         '45000',
+    'Prime_3eme':         '25000',
+    'Prime_4_6':          '10000',
+    'Ecurie_Champion':    '150000',
+    'Ecurie_Vice':        '75000',
+    'Ecurie_3eme':        '35000',
+    'Ecurie_4_6':         '15000',
+  },
+  ecuries: [
+    { Numero:'E1', Nom:'Los Santos Racing Team',  Couleur:'#F0A500', Statut:'Sponsor requis', Pilote1:'—', Pilote2:'—', Mecanicien:'—', Sponsor:'—' },
+    { Numero:'E2', Nom:'Vinewood Motorsport',     Couleur:'#3b8bfa', Statut:'Slot libre',     Pilote1:'—', Pilote2:'—', Mecanicien:'—', Sponsor:'—' },
+    { Numero:'E3', Nom:'Blaine County Speed',     Couleur:'#2ecc71', Statut:'Open',           Pilote1:'—', Pilote2:'—', Mecanicien:'—', Sponsor:'—' },
+    { Numero:'E4', Nom:'Del Perro Racing',        Couleur:'#e74c3c', Statut:'Financé',        Pilote1:'—', Pilote2:'—', Mecanicien:'—', Sponsor:'—' },
+    { Numero:'E5', Nom:'Pillbox Mechanics Club',  Couleur:'#a855f7', Statut:'Slot libre',     Pilote1:'—', Pilote2:'—', Mecanicien:'—', Sponsor:'—' },
+    { Numero:'E6', Nom:'Rockford Hills GP',       Couleur:'#ff7d4d', Statut:'Sponsor requis', Pilote1:'—', Pilote2:'—', Mecanicien:'—', Sponsor:'—' },
+    { Numero:'E7', Nom:'Chumash Coastal Racing',  Couleur:'#06b6d4', Statut:'Open',           Pilote1:'—', Pilote2:'—', Mecanicien:'—', Sponsor:'—' },
+    { Numero:'E8', Nom:'Sandy Shores Xpeed',      Couleur:'#aaa',    Statut:'Slot libre',     Pilote1:'—', Pilote2:'—', Mecanicien:'—', Sponsor:'—' },
+  ],
+  resultats: [
+    { Pilote:'Jean Dupont',    Ecurie:'Los Santos Racing Team', M1:'1',  M2:'3',  M3:'',  M4:'' },
+    { Pilote:'Marc Leroy',     Ecurie:'Los Santos Racing Team', M1:'4',  M2:'8',  M3:'',  M4:'' },
+    { Pilote:'Sofia Reyes',    Ecurie:'Vinewood Motorsport',    M1:'2',  M2:'1',  M3:'',  M4:'' },
+    { Pilote:'Nico Lambert',   Ecurie:'Vinewood Motorsport',    M1:'5',  M2:'6',  M3:'',  M4:'' },
+    { Pilote:'Karim Osei',     Ecurie:'Blaine County Speed',    M1:'3',  M2:'2',  M3:'',  M4:'' },
+    { Pilote:'Tom Castillo',   Ecurie:'Blaine County Speed',    M1:'7',  M2:'4',  M3:'',  M4:'' },
+    { Pilote:'Dana Park',      Ecurie:'Del Perro Racing',       M1:'6',  M2:'5',  M3:'',  M4:'' },
+    { Pilote:'Luis Ortega',    Ecurie:'Del Perro Racing',       M1:'9',  M2:'7',  M3:'',  M4:'' },
+  ],
+  manches: [
+    { Numero:'1', Nom:'Grand Prix de Los Santos',    Circuit:'Circuit urbain',   Lieu:'Downtown LS',         Statut:'Terminée' },
+    { Numero:'2', Nom:'Grand Prix de Blaine County', Circuit:'Circuit désert',   Lieu:'Sandy Shores',        Statut:'Terminée' },
+    { Numero:'3', Nom:'Grand Prix de Vinewood',      Circuit:'Circuit collines', Lieu:'Vinewood Hills',      Statut:'À venir'  },
+    { Numero:'4', Nom:'Grand Prix Final SAM',        Circuit:'Circuit mixte',    Lieu:'Port de Los Santos',  Statut:'À venir'  },
+  ]
+};
+
+
+// ============================================================
+// UTILITAIRES
+// ============================================================
+
+function fmt(n) {
+  if (!n && n !== 0) return '—';
+  return '$' + Number(n).toLocaleString('fr-FR');
+}
+
+function getPoints(pos) {
+  const p = parseInt(pos);
+  if (!p || p < 1) return 0;
+  return POINTS_F1[p] || 0;
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = parseCSVLine(lines[0]);
+  return lines.slice(1)
+    .filter(l => l.trim())
+    .map(line => {
+      const values = parseCSVLine(line);
+      const obj = {};
+      headers.forEach((h, i) => { obj[h.trim()] = (values[i] || '').trim(); });
+      return obj;
+    });
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '';
+  let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') { inQ = !inQ; }
+    else if (line[i] === ',' && !inQ) { result.push(cur); cur = ''; }
+    else { cur += line[i]; }
+  }
+  result.push(cur);
+  return result;
+}
+
+function parseConfig(rows) {
+  // Attend deux colonnes: Paramètre, Valeur
+  const cfg = {};
+  rows.forEach(r => {
+    const key = r['Paramètre'] || r['Parametre'] || r[Object.keys(r)[0]];
+    const val = r['Valeur'] || r[Object.keys(r)[1]];
+    if (key) cfg[key.trim()] = (val || '').trim();
+  });
+  return cfg;
+}
+
+function statusBadge(s) {
+  if (!s) return '';
+  const l = s.toLowerCase();
+  if (l.includes('terminée') || l.includes('terminee')) return `<span class="badge b-green">${s}</span>`;
+  if (l.includes('venir') || l.includes('venir')) return `<span class="badge b-blue">${s}</span>`;
+  if (l.includes('annulée') || l.includes('annulee')) return `<span class="badge b-red">${s}</span>`;
+  if (l.includes('financé') || l.includes('finance')) return `<span class="badge b-green">${s}</span>`;
+  if (l.includes('requis')) return `<span class="badge b-gold">${s}</span>`;
+  if (l.includes('libre') || l.includes('open')) return `<span class="badge b-blue">${s}</span>`;
+  return `<span class="badge b-gray">${s}</span>`;
+}
+
+
+// ============================================================
+// RENDU — CONFIG / HERO
+// ============================================================
+function renderConfig(cfg) {
+  const nom = cfg['Nom'] || 'San Andreas Motors';
+  document.getElementById('h-nom').textContent = nom;
+  document.getElementById('f-nom').textContent = nom.split(' ').map(w => w[0]).join('') || 'SAM';
+  document.getElementById('f-sub').textContent = `${nom} · Fédération de course RP · GTA`;
+  document.title = `S.A.M — ${nom}`;
+
+  const saison = cfg['Saison'] || 'Saison 1';
+  document.getElementById('h-saison').textContent = `${saison} · Championnat Officiel`;
+
+  if (cfg['Tagline']) document.getElementById('h-tagline').textContent = cfg['Tagline'];
+  if (cfg['Manches']) document.getElementById('hs-manches').textContent = cfg['Manches'];
+
+  const ins = parseInt(cfg['Inscription']);
+  if (ins) document.getElementById('hs-inscription').textContent = ins >= 1000 ? `$${Math.round(ins/1000)}k` : `$${ins}`;
+}
+
+
+// ============================================================
+// RENDU — ÉCURIES
+// ============================================================
+function renderEcuries(ecuries) {
+  document.getElementById('hs-ecuries').textContent = ecuries.length;
+  document.getElementById('hs-pilotes').textContent = ecuries.length * 2;
+
+  const html = `<div class="ecurie-grid">${ecuries.map((e, i) => {
+    const color = e.Couleur || '#F0A500';
+    const statut = statusBadge(e.Statut);
+    const pilotes = [e.Pilote1, e.Pilote2].filter(p => p && p !== '—');
+    const meca = e.Mecanicien && e.Mecanicien !== '—' ? e.Mecanicien : null;
+    const sponsor = e.Sponsor && e.Sponsor !== '—' ? e.Sponsor : null;
+
+    return `<div class="ecurie-card">
+      <div class="ecurie-num" style="color:${color};border-color:${color};background:${color}18;">${e.Numero || `E${i+1}`}</div>
+      <div>
+        <div class="ecurie-name">${e.Nom}</div>
+        <div class="ecurie-detail">
+          ${pilotes.length ? `<span>🏎 ${pilotes.join(' · ')}</span>` : '<span>2 pilotes</span>'}
+          ${meca ? `<span>🔧 ${meca}</span>` : ''}
+          ${sponsor ? `<span style="color:var(--gold)">◆ ${sponsor}</span>` : ''}
+          ${statut}
+        </div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+  document.getElementById('ecuries-container').innerHTML = html;
+}
+
+
+// ============================================================
+// RENDU — CLASSEMENT PILOTES + CONSTRUCTEURS
+// ============================================================
+function renderClassements(resultats, cfg) {
+  // Trouver les colonnes Manche (M1, M2, ...)
+  if (!resultats.length) {
+    document.getElementById('classement-container').innerHTML = '<p style="color:var(--muted);font-size:13px;">Aucun résultat enregistré.</p>';
+    document.getElementById('constructeurs-container').innerHTML = '<p style="color:var(--muted);font-size:13px;">Aucun résultat enregistré.</p>';
+    return;
+  }
+  const mancheCols = Object.keys(resultats[0]).filter(k => /^M\d+$/i.test(k)).sort();
+
+  // Calcul pilotes
+  const pilotes = resultats.map(r => {
+    let totalPts = 0;
+    const manchePts = [];
+    mancheCols.forEach(m => {
+      const pts = getPoints(r[m]);
+      totalPts += pts;
+      manchePts.push({ col: m, pos: r[m], pts });
+    });
+    return { ...r, totalPts, manchePts };
+  }).sort((a, b) => b.totalPts - a.totalPts);
+
+  // Classement pilotes HTML
+  const mancheHeaders = mancheCols.map(m => `<th>${m}</th>`).join('');
+  const pilotesRows = pilotes.map((p, i) => {
+    const posCls = i === 0 ? 'p1' : i === 1 ? 'p2' : i === 2 ? 'p3' : 'pn';
+    const mancheTds = p.manchePts.map(mp => {
+      if (!mp.pos) return `<td style="color:var(--dim)">—</td>`;
+      return `<td><span title="${mp.pts} pts">${mp.pos}</span></td>`;
+    }).join('');
+    return `<tr>
+      <td><span class="pos-badge ${posCls}">${i+1}</span></td>
+      <td style="color:var(--text);font-weight:500;">${p.Pilote}</td>
+      <td style="color:var(--muted);font-size:12px;">${p.Ecurie}</td>
+      ${mancheTds}
+      <td class="total-pts">${p.totalPts}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('classement-container').innerHTML = `
+    <div style="overflow-x:auto;">
+      <table class="classement-table">
+        <thead><tr>
+          <th>Pos</th><th>Pilote</th><th>Écurie</th>
+          ${mancheHeaders}
+          <th style="color:var(--gold);">Total</th>
+        </tr></thead>
+        <tbody>${pilotesRows}</tbody>
+      </table>
+    </div>
+    <div class="info">Les chiffres dans les cases = position en course. Le total est calculé automatiquement selon le barème F1 (25-18-15-12-10-8-6-4-2-1).</div>`;
+
+  // Calcul constructeurs
+  const ecuriesMap = {};
+  pilotes.forEach(p => {
+    const nom = p.Ecurie;
+    if (!ecuriesMap[nom]) ecuriesMap[nom] = { nom, totalPts: 0, manchePts: {} };
+    ecuriesMap[nom].totalPts += p.totalPts;
+    p.manchePts.forEach(mp => {
+      if (!ecuriesMap[nom].manchePts[mp.col]) ecuriesMap[nom].manchePts[mp.col] = 0;
+      ecuriesMap[nom].manchePts[mp.col] += mp.pts;
+    });
+  });
+
+  const constrSorted = Object.values(ecuriesMap).sort((a, b) => b.totalPts - a.totalPts);
+  const constrRows = constrSorted.map((e, i) => {
+    const posCls = i === 0 ? 'p1' : i === 1 ? 'p2' : i === 2 ? 'p3' : 'pn';
+    const mancheTds = mancheCols.map(m => `<td>${e.manchePts[m] || 0}</td>`).join('');
+    return `<tr>
+      <td><span class="pos-badge ${posCls}">${i+1}</span></td>
+      <td style="color:var(--text);font-weight:500;">${e.nom}</td>
+      ${mancheTds}
+      <td class="total-pts">${e.totalPts}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('constructeurs-container').innerHTML = `
+    <div style="overflow-x:auto;">
+      <table class="classement-table">
+        <thead><tr>
+          <th>Pos</th><th>Écurie</th>
+          ${mancheHeaders}
+          <th style="color:var(--gold);">Total</th>
+        </tr></thead>
+        <tbody>${constrRows}</tbody>
+      </table>
+    </div>
+    <div class="info">Points constructeurs = somme des points des 2 pilotes de l'écurie à chaque manche.</div>`;
+}
+
+
+// ============================================================
+// RENDU — CALENDRIER
+// ============================================================
+function renderManches(manches, cfg) {
+  const nb = manches.length;
+  if (cfg) document.getElementById('hs-manches').textContent = nb;
+
+  const html = `<div class="manche-grid">${manches.map(m => {
+    const isFinale = m.Numero == nb;
+    return `<div class="manche-card">
+      <div class="manche-num">Manche ${m.Numero}${isFinale ? ' — Finale' : ''}</div>
+      <div class="manche-name">${m.Nom}</div>
+      <div class="manche-loc">${m.Circuit || ''} · ${m.Lieu || ''}</div>
+      <div class="manche-status">${statusBadge(m.Statut)}</div>
+    </div>`;
+  }).join('')}</div>`;
+  document.getElementById('manches-container').innerHTML = html;
+}
+
+
+// ============================================================
+// RENDU — FINANCES
+// ============================================================
+function renderFinances(cfg) {
+  const ins = parseInt(cfg['Inscription']) || 200000;
+  const cau = parseInt(cfg['Caution']) || 30000;
+  const pv  = parseInt(cfg['Prime_Victoire']) || 20000;
+  const pp  = parseInt(cfg['Prime_Podium']) || 12000;
+  const pt8 = parseInt(cfg['Prime_Top8']) || 6000;
+  const ppa = parseInt(cfg['Prime_Participation']) || 2000;
+  const pmP = parseInt(cfg['Prime_Meca_Parfait']) || 8000;
+  const pmA = parseInt(cfg['Prime_Meca_Part']) || 3000;
+  const pc  = parseInt(cfg['Prime_Champion']) || 80000;
+  const pvc = parseInt(cfg['Prime_Vice']) || 45000;
+  const p3  = parseInt(cfg['Prime_3eme']) || 25000;
+  const p46 = parseInt(cfg['Prime_4_6']) || 10000;
+  const ec1 = parseInt(cfg['Ecurie_Champion']) || 150000;
+  const ec2 = parseInt(cfg['Ecurie_Vice']) || 75000;
+  const ec3 = parseInt(cfg['Ecurie_3eme']) || 35000;
+  const ec46= parseInt(cfg['Ecurie_4_6']) || 15000;
+
+  // Calcul P&L estimé
+  const rev = ins * 8 + Math.round(cau * 8 * 0.2);
+  const depCourse = 500000;
+  const depChamp = (pc + pvc + p3 + p46*3) * 2 + ec1 + ec2 + ec3 + ec46*3;
+  const depCaution = Math.round(cau * 8 * 0.8);
+  const dep = depCourse + depChamp + depCaution;
+  const benef = rev - dep;
+
+  document.getElementById('finances-container').innerHTML = `
+    <div class="highlight">
+      <div class="highlight-title">🔒 Inscription unique</div>
+      <div class="highlight-body">Une fois l'inscription payée, l'écurie participe à <strong>toutes les manches sans aucun frais supplémentaire</strong>. Un seul paiement pour toute la saison.</div>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:1.75rem;">
+      <div class="stat"><div class="stat-label">Inscription saison</div><div class="stat-value">${fmt(ins)}</div><div class="stat-sub">toutes les manches incluses</div></div>
+      <div class="stat"><div class="stat-label">Caution réglementaire</div><div class="stat-value">${fmt(cau)}</div><div class="stat-sub">remboursable fin de saison</div></div>
+      <div class="stat"><div class="stat-label">Total à verser</div><div class="stat-value">${fmt(ins+cau)}</div><div class="stat-sub">dont ${fmt(cau)} récupérables</div></div>
+    </div>
+
+    <p class="sub-title">Gains par course</p>
+    <div class="grid-2" style="margin-bottom:1.75rem;">
+      <div class="card">
+        <div class="card-label">Pilotes</div>
+        <ul class="row-list">
+          <li class="row-item"><span class="row-lbl">🥇 Victoire</span><span class="row-val g">+${fmt(pv)}</span></li>
+          <li class="row-item"><span class="row-lbl">🥈🥉 Podium (2e/3e)</span><span class="row-val g">+${fmt(pp)}</span></li>
+          <li class="row-item"><span class="row-lbl">Top 8 (4e–8e)</span><span class="row-val g">+${fmt(pt8)}</span></li>
+          <li class="row-item"><span class="row-lbl">Participation (9e+)</span><span class="row-val">+${fmt(ppa)}</span></li>
+          <li class="row-item"><span class="row-lbl">⚡ Bonus pole / meilleur tour</span><span class="row-val g">+$3 000</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-label">Mécanicien</div>
+        <ul class="row-list">
+          <li class="row-item"><span class="row-lbl">Stand parfait (0 erreur)</span><span class="row-val g">+${fmt(pmP)}</span></li>
+          <li class="row-item"><span class="row-lbl">Participation</span><span class="row-val">+${fmt(pmA)}</span></li>
+          <li class="row-item"><span class="row-lbl">🏆 Hat-trick bonus</span><span class="row-val g">+$10 000</span></li>
+          <li class="row-item"><span class="row-lbl">📈 Remontée +5 places</span><span class="row-val g">+$5 000</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="sub-title">Primes fin de championnat</p>
+    <div class="grid-2" style="margin-bottom:1.75rem;">
+      <div class="card">
+        <div class="card-label">Classement pilotes</div>
+        <ul class="row-list">
+          <li class="row-item"><span class="row-lbl">🥇 Champion</span><span class="row-val g">${fmt(pc)}</span></li>
+          <li class="row-item"><span class="row-lbl">🥈 Vice-champion</span><span class="row-val g">${fmt(pvc)}</span></li>
+          <li class="row-item"><span class="row-lbl">🥉 3ème place</span><span class="row-val" style="color:#cd7f32;">${fmt(p3)}</span></li>
+          <li class="row-item"><span class="row-lbl">4e–6e place</span><span class="row-val">${fmt(p46)}</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-label">Classement constructeurs</div>
+        <ul class="row-list">
+          <li class="row-item"><span class="row-lbl">🏆 Écurie championne</span><span class="row-val g">${fmt(ec1)}</span></li>
+          <li class="row-item"><span class="row-lbl">2e constructeur</span><span class="row-val g">${fmt(ec2)}</span></li>
+          <li class="row-item"><span class="row-lbl">3e constructeur</span><span class="row-val" style="color:#cd7f32;">${fmt(ec3)}</span></li>
+          <li class="row-item"><span class="row-lbl">4e–6e constructeur</span><span class="row-val">${fmt(ec46)}</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="sub-title">Compte de résultat fédération</p>
+    <div class="pnl rev">
+      <div class="pnl-title">▲ Revenus</div>
+      <div class="pnl-item"><span>Inscriptions (8 écuries × ${fmt(ins)})</span><span>${fmt(ins*8)}</span></div>
+      <div class="pnl-item"><span>Cautions retenues (~20% des écuries)</span><span>${fmt(Math.round(cau*8*0.2))}</span></div>
+      <div class="pnl-total"><span>Total revenus</span><span>${fmt(rev)}</span></div>
+    </div>
+    <div class="pnl dep">
+      <div class="pnl-title">▼ Dépenses</div>
+      <div class="pnl-item"><span>Primes course × manches (estimé)</span><span>− ${fmt(depCourse)}</span></div>
+      <div class="pnl-item"><span>Primes fin de championnat</span><span>− ${fmt(depChamp)}</span></div>
+      <div class="pnl-item"><span>Remboursement cautions (80%)</span><span>− ${fmt(depCaution)}</span></div>
+      <div class="pnl-total"><span>Total dépenses</span><span>− ${fmt(dep)}</span></div>
+    </div>
+    <div class="pnl ben">
+      <div class="pnl-title">★ Bénéfice net fédération</div>
+      <div class="pnl-item"><span>Revenus</span><span>${fmt(rev)}</span></div>
+      <div class="pnl-item"><span>Dépenses</span><span>− ${fmt(dep)}</span></div>
+      <div class="pnl-total"><span>Bénéfice net estimé</span><span>~${fmt(benef)}</span></div>
+    </div>`;
+}
+
+
+// ============================================================
+// FETCHER GOOGLE SHEETS
+// ============================================================
+async function fetchSheet(tabName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text = await res.text();
+  if (text.includes('<!DOCTYPE') || text.includes('<html')) throw new Error('Sheet not public');
+  return parseCSV(text);
+}
+
+
+// ============================================================
+// CHARGEMENT PRINCIPAL
+// ============================================================
+async function loadAll(forceRefresh = false) {
+  const isConfigured = SHEET_ID !== 'YOUR_SHEET_ID';
+  document.getElementById('setup-banner').style.display = isConfigured ? 'none' : 'block';
+
+  if (!isConfigured) {
+    // Mode démo
+    renderConfig(DEMO.config);
+    renderEcuries(DEMO.ecuries);
+    renderClassements(DEMO.resultats, DEMO.config);
+    renderManches(DEMO.manches, DEMO.config);
+    renderFinances(DEMO.config);
+    return;
+  }
+
+  // Chargement depuis Google Sheets
+  try {
+    const [configRows, ecuriesRows, resultatsRows, manchesRows] = await Promise.all([
+      fetchSheet(TABS.config),
+      fetchSheet(TABS.ecuries),
+      fetchSheet(TABS.resultats),
+      fetchSheet(TABS.manches)
+    ]);
+
+    const cfg = parseConfig(configRows);
+    renderConfig(cfg);
+    renderEcuries(ecuriesRows);
+    renderClassements(resultatsRows, cfg);
+    renderManches(manchesRows, cfg);
+    renderFinances(cfg);
+
+  } catch (err) {
+    console.error('Erreur Google Sheets:', err);
+    // Fallback démo avec message d'erreur
+    renderConfig(DEMO.config);
+    renderEcuries(DEMO.ecuries);
+    renderClassements(DEMO.resultats, DEMO.config);
+    renderManches(DEMO.manches, DEMO.config);
+    renderFinances(DEMO.config);
+    document.getElementById('setup-banner').style.display = 'block';
+    document.querySelector('#setup-banner h3').textContent = '⚠️ Erreur de connexion Google Sheets';
+    document.querySelector('#setup-banner ol').innerHTML = `
+      <li>Vérifie que l'ID de ta feuille est correct dans <code>const SHEET_ID</code></li>
+      <li>Vérifie que la feuille est bien publiée : <strong>Fichier → Partager → Publier sur le Web</strong></li>
+      <li>Attends 1-2 minutes après la publication et réessaie</li>`;
+  }
+}
+
+// Copie la structure des onglets Google Sheets dans le presse-papier
+function copySheetTemplate() {
+  const template = `Structure des onglets Google Sheets pour SAM :
+
+Onglet 1 : CONFIG
+Paramètre | Valeur
+Nom | San Andreas Motors
+Saison | Saison 1
+Manches | 4
+Tagline | Fédération de course RP · Los Santos
+Inscription | 200000
+Caution | 30000
+Prime_Victoire | 20000
+Prime_Podium | 12000
+Prime_Top8 | 6000
+Prime_Participation | 2000
+Prime_Meca_Parfait | 8000
+Prime_Meca_Part | 3000
+Prime_Champion | 80000
+Prime_Vice | 45000
+Prime_3eme | 25000
+Prime_4_6 | 10000
+Ecurie_Champion | 150000
+Ecurie_Vice | 75000
+Ecurie_3eme | 35000
+Ecurie_4_6 | 15000
+
+Onglet 2 : ECURIES
+Numero | Nom | Couleur | Statut | Pilote1 | Pilote2 | Mecanicien | Sponsor
+E1 | Los Santos Racing Team | #F0A500 | Open | | | |
+...
+
+Onglet 3 : RESULTATS
+Pilote | Ecurie | M1 | M2 | M3 | M4
+Jean Dupont | Los Santos Racing Team | 1 | 3 | |
+(entrer la POSITION en course — les points sont calculés automatiquement)
+
+Onglet 4 : MANCHES
+Numero | Nom | Circuit | Lieu | Statut
+1 | Grand Prix de Los Santos | Circuit urbain | Downtown LS | À venir`;
+
+  navigator.clipboard.writeText(template).then(() => {
+    alert('✅ Structure copiée ! Colle-la dans un document pour créer tes onglets Google Sheets.');
+  }).catch(() => {
+    alert(template);
+  });
+}
+
+// Lancement au chargement de la page
+window.addEventListener('DOMContentLoaded', () => loadAll());
+
+</script>
 </body>
 </html>
