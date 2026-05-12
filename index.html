@@ -420,7 +420,7 @@ const SHEET_ID = '1uqmR4bNcEDErMej6xsfrXPh6IfC70CpzH_8QLS7s-TY';
 const TABS = {
   config:    'CONFIG',
   ecuries:   'ECURIES',
-  resultat: 'RESULTATS',
+  resultats: 'RESULTATS',
   manches:   'MANCHES'
 };
 
@@ -529,7 +529,6 @@ function parseCSVLine(line) {
 }
 
 function parseConfig(rows) {
-  // Attend deux colonnes: Paramètre, Valeur
   const cfg = {};
   rows.forEach(r => {
     const key = r['Paramètre'] || r['Parametre'] || r[Object.keys(r)[0]];
@@ -537,6 +536,13 @@ function parseConfig(rows) {
     if (key) cfg[key.trim()] = (val || '').trim();
   });
   return cfg;
+}
+
+// Nettoie un nombre : retire espaces, points, virgules de formatage
+function cleanNum(str) {
+  if (!str && str !== 0) return 0;
+  // Retire tous les espaces (y compris insécables), puis parse
+  return parseInt(String(str).replace(/[\s\u00a0\.]/g, '').replace(',', '.')) || 0;
 }
 
 function statusBadge(s) {
@@ -568,7 +574,7 @@ function renderConfig(cfg) {
   if (cfg['Tagline']) document.getElementById('h-tagline').textContent = cfg['Tagline'];
   if (cfg['Manches']) document.getElementById('hs-manches').textContent = cfg['Manches'];
 
-  const ins = parseInt(cfg['Inscription']);
+  const ins = cleanNum(cfg['Inscription']);
   if (ins) document.getElementById('hs-inscription').textContent = ins >= 1000 ? `$${Math.round(ins/1000)}k` : `$${ins}`;
 }
 
@@ -721,22 +727,22 @@ function renderManches(manches, cfg) {
 // RENDU — FINANCES
 // ============================================================
 function renderFinances(cfg) {
-  const ins = parseInt(cfg['Inscription']) || 200000;
-  const cau = parseInt(cfg['Caution']) || 30000;
-  const pv  = parseInt(cfg['Prime_Victoire']) || 20000;
-  const pp  = parseInt(cfg['Prime_Podium']) || 12000;
-  const pt8 = parseInt(cfg['Prime_Top8']) || 6000;
-  const ppa = parseInt(cfg['Prime_Participation']) || 2000;
-  const pmP = parseInt(cfg['Prime_Meca_Parfait']) || 8000;
-  const pmA = parseInt(cfg['Prime_Meca_Part']) || 3000;
-  const pc  = parseInt(cfg['Prime_Champion']) || 80000;
-  const pvc = parseInt(cfg['Prime_Vice']) || 45000;
-  const p3  = parseInt(cfg['Prime_3eme']) || 25000;
-  const p46 = parseInt(cfg['Prime_4_6']) || 10000;
-  const ec1 = parseInt(cfg['Ecurie_Champion']) || 150000;
-  const ec2 = parseInt(cfg['Ecurie_Vice']) || 75000;
-  const ec3 = parseInt(cfg['Ecurie_3eme']) || 35000;
-  const ec46= parseInt(cfg['Ecurie_4_6']) || 15000;
+  const ins = cleanNum(cfg['Inscription']) || 200000;
+  const cau = cleanNum(cfg['Caution']) || 30000;
+  const pv  = cleanNum(cfg['Prime_Victoire']) || 20000;
+  const pp  = cleanNum(cfg['Prime_Podium']) || 12000;
+  const pt8 = cleanNum(cfg['Prime_Top8']) || 6000;
+  const ppa = cleanNum(cfg['Prime_Participation']) || 2000;
+  const pmP = cleanNum(cfg['Prime_Meca_Parfait']) || 8000;
+  const pmA = cleanNum(cfg['Prime_Meca_Part']) || 3000;
+  const pc  = cleanNum(cfg['Prime_Champion']) || 80000;
+  const pvc = cleanNum(cfg['Prime_Vice']) || 45000;
+  const p3  = cleanNum(cfg['Prime_3eme']) || 25000;
+  const p46 = cleanNum(cfg['Prime_4_6']) || 10000;
+  const ec1 = cleanNum(cfg['Ecurie_Champion']) || 150000;
+  const ec2 = cleanNum(cfg['Ecurie_Vice']) || 75000;
+  const ec3 = cleanNum(cfg['Ecurie_3eme']) || 35000;
+  const ec46= cleanNum(cfg['Ecurie_4_6']) || 15000;
 
   // Calcul P&L estimé
   const rev = ins * 8 + Math.round(cau * 8 * 0.2);
@@ -830,12 +836,24 @@ function renderFinances(cfg) {
 // FETCHER GOOGLE SHEETS
 // ============================================================
 async function fetchSheet(tabName) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const text = await res.text();
-  if (text.includes('<!DOCTYPE') || text.includes('<html')) throw new Error('Sheet not public');
-  return parseCSV(text);
+  const urls = [
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`,
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(tabName)}`
+  ];
+  let lastErr;
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { credentials: 'omit' });
+      if (!res.ok) { lastErr = new Error('HTTP ' + res.status); continue; }
+      const text = await res.text();
+      if (text.includes('<!DOCTYPE') || text.includes('<html') || text.trim() === '') {
+        lastErr = new Error('Sheet non publié ou nom onglet incorrect');
+        continue;
+      }
+      return parseCSV(text);
+    } catch(e) { lastErr = e; }
+  }
+  throw lastErr;
 }
 
 
