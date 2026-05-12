@@ -582,26 +582,52 @@ function renderConfig(cfg) {
 // ============================================================
 // RENDU — ÉCURIES
 // ============================================================
-function renderEcuries(ecuries) {
-  document.getElementById('hs-ecuries').textContent = ecuries.length;
-  document.getElementById('hs-pilotes').textContent = ecuries.length * 2;
+function getField(obj, ...keys) {
+  // Cherche une clé dans un objet de manière flexible (insensible à la casse, espaces)
+  for (const key of keys) {
+    if (obj[key] !== undefined && obj[key] !== '') return obj[key];
+    // Cherche insensible à la casse
+    const found = Object.keys(obj).find(k => k.trim().toLowerCase() === key.toLowerCase());
+    if (found && obj[found] !== undefined && obj[found] !== '') return obj[found];
+  }
+  return '';
+}
 
-  const html = `<div class="ecurie-grid">${ecuries.map((e, i) => {
-    const color = e.Couleur || '#F0A500';
-    const statut = statusBadge(e.Statut);
-    const pilotes = [e.Pilote1, e.Pilote2].filter(p => p && p !== '—');
-    const meca = e.Mecanicien && e.Mecanicien !== '—' ? e.Mecanicien : null;
-    const sponsor = e.Sponsor && e.Sponsor !== '—' ? e.Sponsor : null;
+function renderEcuries(ecuries) {
+  // Filtre les lignes vides (sans nom d'écurie)
+  const validEcuries = ecuries.filter(e => {
+    const nom = getField(e, 'Nom', 'nom', 'NAME');
+    return nom && nom.trim() && !nom.startsWith('──') && !nom.startsWith('🏎');
+  });
+
+  document.getElementById('hs-ecuries').textContent = validEcuries.length;
+  document.getElementById('hs-pilotes').textContent = validEcuries.length * 2;
+
+  if (!validEcuries.length) {
+    document.getElementById('ecuries-container').innerHTML = '<p style="color:var(--muted)">Aucune écurie trouvée — vérifie que l'onglet s'appelle bien ECURIES</p>';
+    return;
+  }
+
+  const html = `<div class="ecurie-grid">${validEcuries.map((e, i) => {
+    const num    = getField(e, 'Numero', 'numero', 'NUM') || `E${i+1}`;
+    const nom    = getField(e, 'Nom', 'nom', 'NAME') || '—';
+    const color  = getField(e, 'Couleur', 'couleur', 'COLOR') || '#F0A500';
+    const statut = getField(e, 'Statut', 'statut', 'STATUS') || '';
+    const p1     = getField(e, 'Pilote1', 'pilote1', 'PILOTE1', 'Pilote 1');
+    const p2     = getField(e, 'Pilote2', 'pilote2', 'PILOTE2', 'Pilote 2');
+    const meca   = getField(e, 'Mecanicien', 'mecanicien', 'MECA', 'Mécanicien');
+    const sponsor= getField(e, 'Sponsor', 'sponsor');
+    const pilotes = [p1, p2].filter(p => p && p !== '—');
 
     return `<div class="ecurie-card">
-      <div class="ecurie-num" style="color:${color};border-color:${color};background:${color}18;">${e.Numero || `E${i+1}`}</div>
+      <div class="ecurie-num" style="color:${color};border-color:${color};background:${color}18;">${num}</div>
       <div>
-        <div class="ecurie-name">${e.Nom}</div>
+        <div class="ecurie-name">${nom}</div>
         <div class="ecurie-detail">
           ${pilotes.length ? `<span>🏎 ${pilotes.join(' · ')}</span>` : '<span>2 pilotes</span>'}
           ${meca ? `<span>🔧 ${meca}</span>` : ''}
           ${sponsor ? `<span style="color:var(--gold)">◆ ${sponsor}</span>` : ''}
-          ${statut}
+          ${statusBadge(statut)}
         </div>
       </div>
     </div>`;
@@ -623,16 +649,26 @@ function renderClassements(resultats, cfg) {
   const mancheCols = Object.keys(resultats[0]).filter(k => /^M\d+$/i.test(k)).sort();
 
   // Calcul pilotes
-  const pilotes = resultats.map(r => {
-    let totalPts = 0;
-    const manchePts = [];
-    mancheCols.forEach(m => {
-      const pts = getPoints(r[m]);
-      totalPts += pts;
-      manchePts.push({ col: m, pos: r[m], pts });
-    });
-    return { ...r, totalPts, manchePts };
-  }).sort((a, b) => b.totalPts - a.totalPts);
+  const pilotes = resultats
+    .filter(r => {
+      const nom = r['Pilote'] || r['pilote'] || r[Object.keys(r)[0]];
+      return nom && nom.trim() && !nom.startsWith('📊') && !nom.startsWith('🏁') && nom !== 'Pilote';
+    })
+    .map(r => {
+      // Accès flexible au nom et écurie
+      const piloteKey = Object.keys(r).find(k => k.trim().toLowerCase() === 'pilote') || 'Pilote';
+      const ecurieKey = Object.keys(r).find(k => k.trim().toLowerCase() === 'ecurie') || 'Ecurie';
+      const pilote = r[piloteKey] || '';
+      const ecurie = r[ecurieKey] || '';
+      let totalPts = 0;
+      const manchePts = [];
+      mancheCols.forEach(m => {
+        const pts = getPoints(r[m]);
+        totalPts += pts;
+        manchePts.push({ col: m, pos: r[m], pts });
+      });
+      return { ...r, Pilote: pilote, Ecurie: ecurie, totalPts, manchePts };
+    }).sort((a, b) => b.totalPts - a.totalPts);
 
   // Classement pilotes HTML
   const mancheHeaders = mancheCols.map(m => `<th>${m}</th>`).join('');
