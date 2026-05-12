@@ -502,16 +502,35 @@ function getPoints(pos) {
 }
 
 function parseCSV(text) {
-  const lines = text.trim().split('\n');
+  const lines = text.trim().split('\n').filter(l => l.trim());
   if (lines.length < 2) return [];
-  const headers = parseCSVLine(lines[0]);
-  return lines.slice(1)
+
+  // Trouve la vraie ligne d'en-tête : celle qui contient des mots-clés connus
+  // (ignore les lignes de titre/description en haut du sheet)
+  const headerKeywords = ['numero','nom','pilote','ecurie','parametre','paramètre','valeur','manche','statut','couleur'];
+  let headerIdx = 0;
+  for (let i = 0; i < Math.min(5, lines.length); i++) {
+    const parsed = parseCSVLine(lines[i]);
+    const joined = parsed.join(' ').toLowerCase();
+    if (headerKeywords.some(k => joined.includes(k))) {
+      headerIdx = i;
+      break;
+    }
+  }
+
+  const headers = parseCSVLine(lines[headerIdx]);
+  return lines.slice(headerIdx + 1)
     .filter(l => l.trim())
     .map(line => {
       const values = parseCSVLine(line);
       const obj = {};
       headers.forEach((h, i) => { obj[h.trim()] = (values[i] || '').trim(); });
       return obj;
+    })
+    .filter(obj => {
+      // Filtre les lignes vides ou séparateurs (── GÉNÉRAL ── etc)
+      const firstVal = Object.values(obj)[0] || '';
+      return firstVal.trim() && !firstVal.startsWith('──') && !firstVal.startsWith('🏎') && !firstVal.startsWith('📊') && !firstVal.startsWith('Remplis');
     });
 }
 
