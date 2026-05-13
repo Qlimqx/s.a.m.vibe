@@ -213,6 +213,82 @@
       main { padding: 2rem 1rem 4rem; }
       .section { margin-bottom: 3rem; }
     }
+
+    /* ── SECTION P&L PROTÉGÉE ── */
+    .pnl-locked { display: none; }
+    .pnl-unlock-wrap { text-align: center; margin: 1rem 0; }
+    .pnl-unlock-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--dim);
+      font-size: 12px;
+      font-family: 'Barlow', sans-serif;
+      padding: 6px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .pnl-unlock-btn:hover { border-color: var(--gold-border); color: var(--gold); }
+    .pnl-modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+    .pnl-modal-overlay.open { display: flex; }
+    .pnl-modal {
+      background: var(--surface);
+      border: 1px solid var(--gold-border);
+      border-radius: 12px;
+      padding: 2rem;
+      width: 320px;
+      text-align: center;
+    }
+    .pnl-modal h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    .pnl-modal p { font-size: 13px; color: var(--muted); margin-bottom: 1.25rem; }
+    .pnl-modal input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 15px;
+      padding: 10px 14px;
+      text-align: center;
+      letter-spacing: 3px;
+      outline: none;
+      font-family: monospace;
+      margin-bottom: 1rem;
+    }
+    .pnl-modal input:focus { border-color: var(--gold-border); }
+    .pnl-modal-btns { display: flex; gap: 8px; }
+    .pnl-modal-btns button {
+      flex: 1; padding: 9px; border-radius: 6px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      font-family: 'Barlow', sans-serif;
+      transition: background 0.2s;
+    }
+    .btn-confirm {
+      background: var(--gold); color: #1a0e00; border: none;
+    }
+    .btn-confirm:hover { background: #d4920a; }
+    .btn-cancel {
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-cancel:hover { background: var(--surface2); }
+    .pnl-error { font-size: 12px; color: var(--red); margin-top: -0.5rem; margin-bottom: 0.75rem; display: none; }
   </style>
 </head>
 <body>
@@ -865,6 +941,10 @@ function renderFinances(cfg) {
       </div>
     </div>
 
+    <div class="pnl-unlock-wrap">
+      <button class="pnl-unlock-btn" onclick="openPnlModal()">🔒 Compte de résultat — Accès direction SAM</button>
+    </div>
+    <div id="pnl-section" class="pnl-locked">
     <p class="sub-title">Compte de résultat fédération</p>
     <div class="pnl rev">
       <div class="pnl-title">▲ Revenus</div>
@@ -884,6 +964,7 @@ function renderFinances(cfg) {
       <div class="pnl-item"><span>Revenus</span><span>${fmt(rev)}</span></div>
       <div class="pnl-item"><span>Dépenses</span><span>− ${fmt(dep)}</span></div>
       <div class="pnl-total"><span>Bénéfice net estimé</span><span>~${fmt(benef)}</span></div>
+    </div>
     </div>`;
 }
 
@@ -1039,9 +1120,58 @@ Numero | Nom | Circuit | Lieu | Statut
   });
 }
 
+
+// ── PROTECTION P&L ──────────────────────────────────────────
+// Change ce mot de passe ici (cherche : PNL_PASSWORD)
+const PNL_PASSWORD = 'sam2024';
+
+function openPnlModal() {
+  document.getElementById('pnl-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('pnl-pwd').focus(), 100);
+}
+
+function closePnlModal(e) {
+  if (e && e.target !== document.getElementById('pnl-overlay')) return;
+  document.getElementById('pnl-overlay').classList.remove('open');
+  document.getElementById('pnl-pwd').value = '';
+  document.getElementById('pnl-error').style.display = 'none';
+}
+
+function checkPnlPwd() {
+  const pwd = document.getElementById('pnl-pwd').value;
+  if (pwd === PNL_PASSWORD) {
+    document.getElementById('pnl-overlay').classList.remove('open');
+    document.getElementById('pnl-section').classList.remove('pnl-locked');
+    document.getElementById('pnl-section').classList.add('pnl-unlocked');
+    document.getElementById('pnl-unlock-wrap').style.display = 'none';
+    document.getElementById('pnl-pwd').value = '';
+  } else {
+    document.getElementById('pnl-error').style.display = 'block';
+    document.getElementById('pnl-pwd').value = '';
+    document.getElementById('pnl-pwd').focus();
+  }
+}
+
 // Lancement au chargement de la page
 window.addEventListener('DOMContentLoaded', () => loadAll());
 
 </script>
+
+<!-- Modal mot de passe P&L -->
+<div class="pnl-modal-overlay" id="pnl-overlay" onclick="closePnlModal(event)">
+  <div class="pnl-modal">
+    <h3>🔒 Accès restreint</h3>
+    <p>Cette section est réservée à la direction SAM.</p>
+    <input type="password" id="pnl-pwd" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter') checkPnlPwd()"
+      autocomplete="off" />
+    <div class="pnl-error" id="pnl-error">Mot de passe incorrect</div>
+    <div class="pnl-modal-btns">
+      <button class="btn-cancel" onclick="closePnlModal()">Annuler</button>
+      <button class="btn-confirm" onclick="checkPnlPwd()">Accéder</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
